@@ -8,6 +8,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import Footer from "../../Footer/Footer";
 
 const Dashboard = () => {
+  const ADMIN_EMAIL = "c233210@ugrad.iiuc.ac.bd";
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
@@ -95,6 +96,15 @@ const Dashboard = () => {
           >
             Logout
           </button>
+          {user?.email === ADMIN_EMAIL && (
+            <button
+              onClick={() => navigate("/admin/orders")}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow"
+            >
+              Admin Panel
+            </button>
+          )}
+        
         </div>
 
         {/* Order List Section */}
