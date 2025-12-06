@@ -251,7 +251,7 @@ const ReviewSection = ({ productId }) => {
                       <span>0</span> {/* Placeholder for dislikes */}
                     </button>
                     {user && (
-                      <button className="ml-auto text-primary hover:underline p-2 rounded-md hover:bg-secondary">Reply</button> {/* Added padding and hover */}
+                      <button className="ml-auto text-primary hover:underline p-2 rounded-md hover:bg-secondary">Reply</button> 
                     )}
                   </div>
 
