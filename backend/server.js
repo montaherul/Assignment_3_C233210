@@ -64,31 +64,28 @@ async function seedProducts() {
     }
 
     const productCount = await Product.countDocuments();
-    if (productCount > 0) {
-      console.log('Existing products found in DB. Clearing and re-seeding...');
-      await Product.deleteMany({}); // Clear existing products
+    if (productCount === 0) { // Only seed if the collection is empty
+      console.log('No existing products found in DB. Seeding from products.json...');
+      const productsToInsert = products.map(p => ({
+        title: p.title,
+        slug: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, ''),
+        price: p.price,
+        description: p.description,
+        category: p.category,
+        image: p.thumbnail || p.images[0], // Use thumbnail or first image
+        stock: p.stock,
+        rating: {
+          rate: p.rating,
+          count: p.reviews ? p.reviews.length : 0,
+        },
+        createdAt: new Date(p.meta.createdAt),
+        updatedAt: new Date(p.meta.updatedAt),
+      }));
+      await Product.insertMany(productsToInsert);
+      console.log(`Successfully seeded ${productsToInsert.length} products from products.json!`);
     } else {
-      console.log('No existing products found in DB. Seeding...');
+      console.log(`Database already contains ${productCount} products. Skipping seeding from products.json.`);
     }
-
-    const productsToInsert = products.map(p => ({
-      title: p.title,
-      slug: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, ''),
-      price: p.price,
-      description: p.description,
-      category: p.category,
-      image: p.thumbnail || p.images[0], // Use thumbnail or first image
-      stock: p.stock,
-      rating: {
-        rate: p.rating,
-        count: p.reviews ? p.reviews.length : 0,
-      },
-      createdAt: new Date(p.meta.createdAt),
-      updatedAt: new Date(p.meta.updatedAt),
-    }));
-
-    await Product.insertMany(productsToInsert);
-    console.log(`Successfully seeded ${productsToInsert.length} products from products.json!`);
   } catch (error) {
     console.error('Error seeding products:', error);
   }
