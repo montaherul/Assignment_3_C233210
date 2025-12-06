@@ -275,7 +275,7 @@ const Order = () => {
                       <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200 text-sm text-indigo-800">
                         <p className="font-semibold mb-2">
                           Please send ${price} to our {paymentMethod} number:{" "}
-                          <span className="font-bold">01XXXXXXXXX</span>
+                          <span className="font-bold">01875989022</span>
                         </p>
                         <p className="mb-3">
                           After successful payment, enter the transaction ID and your sender number below.
