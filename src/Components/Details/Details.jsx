@@ -4,6 +4,7 @@ import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 import Product from "../Product/Product"; // Import the Product component
+import ReviewSection from "../ReviewSection/ReviewSection"; // Import the new ReviewSection
 
 const Details = () => {
   const product = useLoaderData();
@@ -326,6 +327,9 @@ const Details = () => {
             </div>
           )}
         </section>
+
+        {/* Customer Reviews Section */}
+        {_id && <ReviewSection productId={_id} />}
       </div>
       <Footer />
     </div>
