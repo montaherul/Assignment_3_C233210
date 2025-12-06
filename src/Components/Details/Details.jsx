@@ -19,15 +19,6 @@ const Details = () => {
   const [similarProductsLoading, setSimilarProductsLoading] = useState(true);
   const [similarProductsError, setSimilarProductsError] = useState(null);
 
-  // State for reviews
-  const [reviews, setReviews] = useState([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [reviewsError, setReviewsError] = useState(null);
-  const [newCommentText, setNewCommentText] = useState("");
-  const [newRating, setNewRating] = useState(0); // 0 for no rating, 1-5 for actual rating
-  const [anonymousUserName, setAnonymousUserName] = useState("");
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-
 
   const API_BASE_URL = "http://localhost:5000/api";
 
@@ -90,30 +81,6 @@ const Details = () => {
     fetchSimilarProducts();
   }, [category, _id]); // Re-run when category or current product ID changes
 
-  // Fetch reviews for the current product
-  useEffect(() => {
-    const fetchReviews = async () => {
-      if (!_id) return;
-      setReviewsLoading(true);
-      setReviewsError(null);
-      try {
-        const response = await fetch(`${API_BASE_URL}/reviews/product/${_id}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setReviews(data);
-      } catch (err) {
-        console.error("Error fetching reviews:", err);
-        setReviewsError("Failed to load reviews.");
-      } finally {
-        setReviewsLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, [_id]);
-
   // Function to add/remove product from wishlist
   const toggleWishlist = async () => {
     if (!user || !firebaseUser) {
@@ -154,80 +121,19 @@ const Details = () => {
     }
   };
 
-  // Handle review submission
-  const handleSubmitReview = async (e) => {
-    e.preventDefault();
-    if (!newCommentText.trim()) {
-      alert("Comment cannot be empty.");
-      return;
-    }
-
-    setIsSubmittingReview(true);
-    try {
-      let token = null;
-      let reviewUserName = anonymousUserName.trim();
-
-      if (user && firebaseUser) {
-        token = await firebaseUser.getIdToken();
-        reviewUserName = user.name || user.email; // Use logged-in user's name
-      } else if (!anonymousUserName.trim()) {
-        alert("Please enter your name for anonymous comments.");
-        setIsSubmittingReview(false);
-        return;
-      }
-
-      const reviewData = {
-        productId: _id,
-        userName: reviewUserName,
-        comment: newCommentText.trim(),
-        rating: newRating > 0 ? newRating : null,
-        // parentId: null, // For now, we're not implementing nested replies in UI
-      };
-
-      const response = await fetch(`${API_BASE_URL}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Only send token if user is logged in
-          ...(token && { 'x-auth-token': token }),
-        },
-        body: JSON.stringify(reviewData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Review submitted successfully!");
-        setNewCommentText("");
-        setNewRating(0);
-        setAnonymousUserName("");
-        // Re-fetch reviews to show the new one
-        const updatedReviewsResponse = await fetch(`${API_BASE_URL}/reviews/product/${_id}`);
-        const updatedReviewsData = await updatedReviewsResponse.json();
-        setReviews(updatedReviewsData);
-      } else {
-        alert(`Failed to submit review: ${data.message || 'Server error'}`);
-      }
-    } catch (error) {
-      console.error("Error submitting review:", error);
-      alert("Failed to submit review. Please try again.");
-    } finally {
-      setIsSubmittingReview(false);
-    }
-  };
-
   // Helper to render static stars for the UI design
-  const renderStars = (count, size = 'w-5 h-5') => (
+  const renderStars = () => (
     <div className="flex items-center space-x-1">
       {[...Array(5)].map((_, i) => (
         <svg
           key={i}
-          className={`${size} ${i < count ? 'text-yellow-400 fill-current' : 'text-gray-300 fill-current'}`}
+          className="w-5 h-5 text-yellow-400 fill-current"
           viewBox="0 0 24 24"
         >
           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
         </svg>
       ))}
+      <span className="text-sm text-muted-foreground ml-2">(4.8 stars)</span>
     </div>
   );
 
@@ -279,10 +185,7 @@ const Details = () => {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize">
                 {category}
               </span>
-              <div className="flex items-center">
-                {renderStars(4)} {/* Static 4 stars for product display */}
-                <span className="text-sm text-muted-foreground ml-2">(4.8 stars)</span>
-              </div>
+              {renderStars()}
             </div>
 
             {/* Title */}
@@ -419,105 +322,6 @@ const Details = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {similarProducts.map((similarProduct) => (
                 <Product key={similarProduct._id} pdt={similarProduct} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Reviews Section */}
-        <section className="max-w-4xl mx-auto py-16">
-          <h2 className="text-3xl font-bold text-center mb-10 text-foreground">Customer Reviews ({reviews.length})</h2>
-
-          {/* Review Submission Form */}
-          <div className="bg-card rounded-2xl shadow-sm border border-border p-6 mb-10">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Leave a Review</h3>
-            <form onSubmit={handleSubmitReview} className="space-y-4">
-              {!user && (
-                <div>
-                  <label htmlFor="anonymousName" className="block text-sm font-medium text-foreground mb-1">Your Name</label>
-                  <input
-                    type="text"
-                    id="anonymousName"
-                    value={anonymousUserName}
-                    onChange={(e) => setAnonymousUserName(e.target.value)}
-                    placeholder="Anonymous"
-                    className="w-full px-4 py-2 border border-border rounded-lg text-foreground bg-input focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                  />
-                </div>
-              )}
-              <div>
-                <label htmlFor="comment" className="block text-sm font-medium text-foreground mb-1">Your Comment</label>
-                <textarea
-                  id="comment"
-                  value={newCommentText}
-                  onChange={(e) => setNewCommentText(e.target.value)}
-                  rows="4"
-                  required
-                  className="w-full px-4 py-2 border border-border rounded-lg text-foreground bg-input focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                  placeholder="Share your thoughts about this product..."
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Rating (Optional)</label>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setNewRating(star)}
-                      className="p-1 focus:outline-none"
-                    >
-                      {renderStars(star, 'w-6 h-6')[0].props.children[star - 1]} {/* Render individual star */}
-                    </button>
-                  ))}
-                  {newRating > 0 && <span className="ml-2 text-sm text-muted-foreground">({newRating} stars)</span>}
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmittingReview}
-                className="w-full px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-sky-700 focus:ring-4 focus:ring-primary/30 transition shadow-sm disabled:bg-primary/60 disabled:cursor-not-allowed"
-              >
-                {isSubmittingReview ? "Submitting..." : "Submit Review"}
-              </button>
-            </form>
-          </div>
-
-          {/* Display Existing Reviews */}
-          {reviewsLoading ? (
-            <div className="text-center py-8">
-              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading reviews...</p>
-            </div>
-          ) : reviewsError ? (
-            <p className="text-center text-destructive">{reviewsError}</p>
-          ) : reviews.length === 0 ? (
-            <p className="text-center text-muted-foreground">No reviews yet. Be the first to comment!</p>
-          ) : (
-            <div className="space-y-6">
-              {reviews.map((review) => (
-                <div key={review._id} className="bg-card rounded-xl shadow-sm border border-border p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground font-bold">
-                        {review.userName?.charAt(0).toUpperCase() || "U"}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">{review.userName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    {review.rating > 0 && renderStars(review.rating, 'w-4 h-4')}
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">{review.comment}</p>
-                  {review.parentId && (
-                    <div className="mt-3 pl-4 border-l-2 border-border text-sm text-muted-foreground">
-                      Replying to: <span className="font-medium">{review.parentId.userName}</span> - "{review.parentId.comment.substring(0, 50)}..."
-                    </div>
-                  )}
-                </div>
               ))}
             </div>
           )}
