@@ -2,7 +2,6 @@ import React from "react";
 import Navigation from "../Navigation/Navigation";
 import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
-// Removed standard CSS import in favor of Tailwind classes
 
 const Details = () => {
   const product = useLoaderData();
@@ -23,20 +22,19 @@ const Details = () => {
           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
         </svg>
       ))}
-      <span className="text-sm text-slate-500 ml-2">(4.8 stars)</span>
+      <span className="text-sm text-muted-foreground ml-2">(4.8 stars)</span>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-     <>
+    <div className="min-h-screen bg-background font-sans">
       <Navigation />
 
       {/* Breadcrumb / Back Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center text-sm text-slate-500 hover:text-indigo-600 transition-colors"
+          className="flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           <svg
             className="w-4 h-4 mr-1"
@@ -59,7 +57,7 @@ const Details = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16 items-start">
           {/* 1. Image Gallery Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex justify-center items-center mb-8 lg:mb-0">
+          <div className="bg-card rounded-2xl shadow-sm border border-border p-4 flex justify-center items-center mb-8 lg:mb-0">
             <div className="relative aspect-square w-full max-w-[500px] flex items-center justify-center overflow-hidden">
               <img
                 src={image}
@@ -73,29 +71,29 @@ const Details = () => {
           <div className="mt-10 px-2 sm:px-0 sm:mt-16 lg:mt-0">
             {/* Category & Rating */}
             <div className="flex justify-between items-center mb-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 capitalize">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize">
                 {category}
               </span>
               {renderStars()}
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl mb-4">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl mb-4">
               {title}
             </h1>
 
             {/* Price */}
             <div className="mt-3 flex items-end">
-              <p className="text-4xl font-bold text-slate-900">${price}</p>
-              <span className="ml-2 text-sm text-slate-500 mb-2">USD</span>
+              <p className="text-4xl font-bold text-primary">${price}</p>
+              <span className="ml-2 text-sm text-muted-foreground mb-2">USD</span>
             </div>
 
             {/* Description */}
-            <div className="mt-8 border-t border-slate-200 pt-8">
-              <h3 className="text-sm font-medium text-slate-900">
+            <div className="mt-8 border-t border-border pt-8">
+              <h3 className="text-sm font-medium text-foreground">
                 Description
               </h3>
-              <div className="mt-4 prose prose-sm text-slate-600 leading-relaxed">
+              <div className="mt-4 prose prose-sm text-muted-foreground leading-relaxed">
                 <p>{description}</p>
               </div>
             </div>
@@ -103,7 +101,7 @@ const Details = () => {
             {/* Action Buttons */}
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link to={`/products/order/${id}`} className="flex-1">
-                <button className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-0.5">
+                <button className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-primary-foreground bg-primary hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5">
                   <svg
                     className="w-5 h-5 mr-2"
                     fill="none"
@@ -121,7 +119,7 @@ const Details = () => {
                 </button>
               </Link>
 
-              <button className="flex-1 flex items-center justify-center px-8 py-4 border border-slate-300 text-base font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+              <button className="flex-1 flex items-center justify-center px-8 py-4 border border-border text-base font-medium rounded-xl text-foreground bg-card hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -141,7 +139,7 @@ const Details = () => {
 
             {/* Trust Badges */}
             <div className="mt-8 grid grid-cols-2 gap-4">
-              <div className="flex items-center text-sm text-slate-500">
+              <div className="flex items-center text-sm text-muted-foreground">
                 <svg
                   className="w-5 h-5 mr-2 text-green-500"
                   fill="none"
@@ -157,7 +155,7 @@ const Details = () => {
                 </svg>
                 In Stock & Ready to Ship
               </div>
-              <div className="flex items-center text-sm text-slate-500">
+              <div className="flex items-center text-sm text-muted-foreground">
                 <svg
                   className="w-5 h-5 mr-2 text-green-500"
                   fill="none"
@@ -177,12 +175,8 @@ const Details = () => {
           </div>
         </div>
       </div>
-      </>
-       <Footer />
-      
+      <Footer />
     </div>
-
-  
   );
 };
 

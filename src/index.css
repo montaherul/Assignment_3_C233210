@@ -1,38 +1,36 @@
 @import "tailwindcss";
 
-/* Removed tw-animate-css import that was causing errors */
-
-/* Default theme (now dark) */
+/* Default theme (now light) */
 @theme inline {
-  --color-background: #1a1a2e; /* Deep blue-gray */
-  --color-foreground: #e0e0e0; /* Light gray for text */
+  --color-background: #f8fafc; /* Light blue-gray for background */
+  --color-foreground: #1e293b; /* Dark blue-gray for text */
 
-  --color-card: #2c2c4a; /* Slightly lighter dark for cards */
-  --color-card-foreground: #e0e0e0;
+  --color-card: #ffffff; /* White for cards */
+  --color-card-foreground: #1e293b;
 
-  --color-popover: #2c2c4a;
-  --color-popover-foreground: #e0e0e0;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1e293b;
 
-  --color-primary: #6a0dad; /* Vibrant Indigo/Purple accent */
+  --color-primary: #0ea5e9; /* Vibrant Sky Blue accent */
   --color-primary-foreground: #ffffff;
 
-  --color-secondary: #3a3a5a; /* Muted dark for secondary elements */
-  --color-secondary-foreground: #e0e0e0;
+  --color-secondary: #e2e8f0; /* Light gray for secondary elements */
+  --color-secondary-foreground: #1e293b;
 
-  --color-muted: #4a4a6a; /* Even more muted dark */
-  --color-muted-foreground: #b0b0b0; /* Lighter muted text */
+  --color-muted: #cbd5e1; /* Even more muted light gray */
+  --color-muted-foreground: #64748b; /* Muted text */
 
-  --color-accent: #6a0dad; /* Using primary as accent for vibrancy */
+  --color-accent: #0ea5e9; /* Using primary as accent for vibrancy */
   --color-accent-foreground: #ffffff;
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #fafafa;
 
-  --color-border: #4a4a6a; /* Darker border */
-  --color-input: #3a3a5a; /* Darker input background */
-  --color-ring: #6a0dad; /* Accent color for focus rings */
+  --color-border: #e2e8f0; /* Light border */
+  --color-input: #ffffff; /* White input background */
+  --color-ring: #0ea5e9; /* Accent color for focus rings */
 
-  --radius: 0.75rem; /* Slightly larger radius for a modern feel */
+  --radius: 0.5rem; /* Slightly smaller radius for a clean feel */
 }
 
 * {
@@ -47,7 +45,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar for light theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
