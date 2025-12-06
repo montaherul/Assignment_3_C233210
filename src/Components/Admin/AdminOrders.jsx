@@ -112,9 +112,18 @@ const AdminOrders = () => {
     }
   };
 
-  const handleOpenMap = (mapLink) => {
-    setCurrentMapUrl(mapLink);
-    setShowMapModal(true);
+  const handleAddressClick = (address) => {
+    // Check if it's a Google Maps embed link
+    if (address && address.startsWith("https://www.google.com/maps/embed?")) {
+      setCurrentMapUrl(address);
+      setShowMapModal(true);
+    } else if (address && address.startsWith("http")) {
+      // If it's any other URL, open in a new tab
+      window.open(address, "_blank");
+    } else if (address) {
+      // If it's just a plain address, try to search on Google Maps
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, "_blank");
+    }
   };
 
   const handleCloseMap = () => {
@@ -241,20 +250,20 @@ const AdminOrders = () => {
                 </div>
 
                 {/* Clickable Address/Map Link */}
-                {order.address && order.address.startsWith("http") ? (
+                {order.address ? (
                   <button
-                    onClick={() => handleOpenMap(order.address)}
+                    onClick={() => handleAddressClick(order.address)}
                     className="text-xs text-primary hover:underline bg-background/50 p-2 rounded border border-border flex items-center gap-1"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    View Map Location
+                    {order.address.startsWith("https://www.google.com/maps/embed?") ? "View Map Location (Modal)" : "View Map Location (New Tab)"}
                   </button>
                 ) : (
                   <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border border-border">
-                    📍 {order.address || "No address provided"}
+                    📍 No address provided
                   </div>
                 )}
               </div>
