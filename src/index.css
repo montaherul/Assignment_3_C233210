@@ -63,3 +63,26 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
+
+/* NEW: Custom Keyframe for Slide Up and Fade In */
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* NEW: Custom Utility Classes for Animation */
+.animate-slide-up-fade-in {
+  animation: slideUpFadeIn 0.7s ease-out forwards;
+}
+.animate-slide-up-fade-in-delay-200 {
+  animation: slideUpFadeIn 0.7s ease-out 0.2s forwards;
+}
+.animate-slide-up-fade-in-delay-400 {
+  animation: slideUpFadeIn 0.7s ease-out 0.4s forwards;
+}

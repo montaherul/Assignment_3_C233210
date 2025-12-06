@@ -38,13 +38,13 @@ const Root = () => {
       <section className="relative bg-gradient-to-r from-primary to-sky-400 text-primary-foreground py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 leading-tight opacity-0 animate-slide-up-fade-in"> {/* Added animation */}
             Unleash Your Potential <br className="hidden sm:inline"/> with Our Latest Tech
           </h1>
-          <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 opacity-90">
+          <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 opacity-0 animate-slide-up-fade-in-delay-200"> {/* Added animation with delay */}
             Experience cutting-edge innovation and exclusive deals. Limited time offers on premium electronics!
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 opacity-0 animate-slide-up-fade-in-delay-400"> {/* Added animation with more delay */}
             <Link to="/products" className="px-8 py-4 rounded-full bg-primary-foreground text-primary font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg">
               Shop Now
             </Link>
