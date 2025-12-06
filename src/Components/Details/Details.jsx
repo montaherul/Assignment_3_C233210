@@ -3,19 +3,23 @@ import Navigation from "../Navigation/Navigation";
 import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
+import { useCart } from "../CartContext/CartContext"; // NEW: Import useCart hook
 import Product from "../Product/Product"; // Import the Product component
 import ReviewSection from "../ReviewSection/ReviewSection"; // Import the new ReviewSection
+import { ShoppingCart } from 'lucide-react'; // NEW: Import ShoppingCart icon
 
 const Details = () => {
   const product = useLoaderData();
   const navigate = useNavigate();
   const { user, firebaseUser, loading: authLoading } = useAuth(); // Get user, firebaseUser, and authLoading from AuthContext
+  const { addItemToCart } = useCart(); // NEW: Get addItemToCart from CartContext
 
   // Destructure with fallbacks to prevent crashes
   const { _id, title, price, category, description, image } = product || {};
 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistActionLoading, setWishlistActionLoading] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // NEW: State for Add to Cart loading
   const [similarProducts, setSimilarProducts] = useState([]);
   const [similarProductsLoading, setSimilarProductsLoading] = useState(true);
   const [similarProductsError, setSimilarProductsError] = useState(null);
@@ -122,6 +126,23 @@ const Details = () => {
     }
   };
 
+  // NEW: Function to add product to cart
+  const handleAddToCart = async () => {
+    if (!user || !firebaseUser) {
+      alert("Please log in to add items to your cart.");
+      navigate("/login");
+      return;
+    }
+    setIsAddingToCart(true);
+    const result = await addItemToCart(_id, 1); // Add 1 quantity of this product
+    if (result.success) {
+      alert("Item added to cart!");
+    } else {
+      alert(`Failed to add item to cart: ${result.message}`);
+    }
+    setIsAddingToCart(false);
+  };
+
   // Helper to render static stars for the UI design
   const renderStars = () => (
     <div className="flex items-center space-x-1">
@@ -212,6 +233,22 @@ const Details = () => {
 
             {/* Action Buttons */}
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleAddToCart} // NEW: Add to Cart button
+                disabled={isAddingToCart || authLoading}
+                className="flex-1 flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-primary-foreground bg-primary hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5 disabled:bg-primary/60 disabled:cursor-not-allowed"
+              >
+                {isAddingToCart ? (
+                  <svg className="animate-spin h-5 w-5 mr-2 text-primary-foreground" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                )}
+                Add to Cart
+              </button>
+
               <Link to={`/products/order/${_id}`} className="flex-1">
                 <button className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-primary-foreground bg-primary hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5">
                   <svg
@@ -227,7 +264,7 @@ const Details = () => {
                       d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                     />
                   </svg>
-                  Order Now
+                  Buy Now
                 </button>
               </Link>
 

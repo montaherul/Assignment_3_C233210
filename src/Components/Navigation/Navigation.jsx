@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
-import { Heart } from 'lucide-react'; // Import Heart icon from Lucide React
+import { Heart, ShoppingCart } from 'lucide-react'; // Import Heart and ShoppingCart icons
+import { useCart } from "../CartContext/CartContext"; // NEW: Import useCart hook
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, firebaseUser, logout } = useAuth(); // Get user, firebaseUser and logout from AuthContext
+  const { cartTotalItems } = useCart(); // NEW: Get cartTotalItems from CartContext
   const navigate = useNavigate();
   const [wishlistCount, setWishlistCount] = useState(0); // State to hold wishlist count
 
@@ -97,6 +99,16 @@ const Navigation = () => {
                   )}
                 </NavLink>
 
+                {/* Cart Icon */}
+                <NavLink to="/cart" className="relative p-2 rounded-full hover:bg-secondary transition-colors">
+                  <ShoppingCart className="w-5 h-5 text-foreground" />
+                  {cartTotalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {cartTotalItems}
+                    </span>
+                  )}
+                </NavLink>
+
                 {/* Profile picture or initial */}
                 <NavLink to="/dashboard">
                   {user.photoURL ? (
@@ -174,6 +186,18 @@ const Navigation = () => {
               >
                 <Heart className="w-5 h-5" />
                 Wishlist {wishlistCount > 0 && <span className="ml-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{wishlistCount}</span>}
+              </NavLink>
+            )}
+
+            {/* Mobile Cart Link */}
+            {user && (
+              <NavLink
+                to="/cart"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-secondary flex items-center gap-2"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Cart {cartTotalItems > 0 && <span className="ml-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{cartTotalItems}</span>}
               </NavLink>
             )}
 

@@ -18,7 +18,9 @@ import EditProfile from './Components/EditProfile/EditProfile.jsx';
 import AdminOrders from './Components/Admin/AdminOrders.jsx';
 import CreateProduct from './Components/Admin/CreateProduct.jsx'; // Import CreateProduct
 import Wishlist from './Components/Wishlist/Wishlist.jsx'; // Import Wishlist
+import CartPage from './Components/CartPage/CartPage.jsx'; // NEW: Import CartPage
 import { AuthProvider } from './Components/AuthContext/AuthContext.jsx'; // Correct import for AuthProvider
+import { CartProvider } from './Components/CartContext/CartContext.jsx'; // NEW: Import CartProvider
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'; // Import ProtectedRoute
 
 const router = createBrowserRouter([
@@ -86,13 +88,19 @@ const router = createBrowserRouter([
   {
     path: "/wishlist", // New route for wishlist
     element: <ProtectedRoute><Wishlist /></ProtectedRoute>, // Protect the Wishlist route
+  },
+  {
+    path: "/cart", // NEW: Route for the Cart page
+    element: <ProtectedRoute><CartPage /></ProtectedRoute>, // Protect the Cart page
   }
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <CartProvider> {/* NEW: Wrap with CartProvider */}
+        <RouterProvider router={router} />
+      </CartProvider>
     </AuthProvider>
   </StrictMode>
 );
