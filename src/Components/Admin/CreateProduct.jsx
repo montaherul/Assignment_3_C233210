@@ -6,7 +6,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 
 const CreateProduct = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, firebaseUser, loading } = useAuth(); // Get user, firebaseUser, and loading
 
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
@@ -19,7 +19,7 @@ const CreateProduct = () => {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== "admin")) {
+    if (!loading && (!user || user.role !== "admin")) { // Check custom user role
       alert("Access Denied: You are not authorized to create products.");
       navigate("/dashboard");
     }
@@ -31,19 +31,19 @@ const CreateProduct = () => {
     setSuccess("");
     setIsSubmitting(true);
 
-    if (!user) {
+    if (!user || !firebaseUser) {
       setError("You must be logged in to create a product.");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = await firebaseUser.getIdToken(); // Get Firebase ID token
       const response = await fetch("http://localhost:5000/api/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-token": token,
+          "x-auth-token": token, // Send Firebase ID token
         },
         body: JSON.stringify({
           title,

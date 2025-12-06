@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs'); // Removed bcrypt as Firebase handles passwords
 
 const UserSchema = new mongoose.Schema({
+  uid: { // NEW: Firebase User ID
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
   email: {
     type: String,
     required: true,
@@ -9,10 +15,10 @@ const UserSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
-  password: { // Storing hashed password
-    type: String,
-    required: true,
-  },
+  // password: { // Removed password field as Firebase handles authentication
+  //   type: String,
+  //   required: true,
+  // },
   name: {
     type: String,
     default: 'User',
@@ -47,18 +53,18 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// Hash the password before saving the user
-UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  }
-  next();
-});
+// Removed password hashing pre-save hook
+// UserSchema.pre('save', async function (next) {
+//   if (this.isModified('password')) {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//   }
+//   next();
+// });
 
-// Method to compare passwords
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+// Removed method to compare passwords
+// UserSchema.methods.comparePassword = async function (candidatePassword) {
+//   return bcrypt.compare(candidatePassword, this.password);
+// };
 
 module.exports = mongoose.model('User', UserSchema);

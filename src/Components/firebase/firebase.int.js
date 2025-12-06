@@ -1,9 +1,13 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// import { GoogleAuthProvider, GithubAuthProvider } from "firebase/auth"; // Removed
-import { getAuth } from "firebase/auth";
-// import { getFirestore } from "firebase/firestore"; // Removed getFirestore
-
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  updateProfile, 
+  signOut, 
+  onAuthStateChanged 
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCj22RruYIAmIUucWEh_TKgIuffAf8PEQw",
@@ -15,6 +19,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app); // Keep getAuth for potential future use if needed, but it's not used for core auth anymore
-// export const db = getFirestore(app); // Firestore is no longer used for orders
-// export const githubProvider =  new GithubAuthProvider(); // Removed
+export const auth = getAuth(app);
+
+// Export Firebase Auth functions for use in AuthContext
+export { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  updateProfile, 
+  signOut, 
+  onAuthStateChanged 
+};

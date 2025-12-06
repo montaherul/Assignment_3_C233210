@@ -1,101 +1,98 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Import the User model
+// const bcrypt = require('bcryptjs'); // Not needed anymore
+// const jwt = require('jsonwebtoken'); // Not needed anymore
+// const User = require('../models/User'); // Not directly used for auth anymore
 
-// Environment variable for JWT secret
-const JWT_SECRET = process.env.JWT_SECRET;
+// Environment variable for JWT secret (no longer used for custom JWTs)
+// const JWT_SECRET = process.env.JWT_SECRET;
 
 // @route   POST /api/auth/register
-// @desc    Register a new user
+// @desc    Register a new user (REMOVED - Firebase handles this)
 // @access  Public
-router.post('/register', async (req, res) => {
-  const { email, password, name } = req.body;
+// router.post('/register', async (req, res) => {
+//   const { email, password, name } = req.body;
 
-  try {
-    // Check if user already exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+//   try {
+//     let user = await User.findOne({ email });
+//     if (user) {
+//       return res.status(400).json({ message: 'User already exists' });
+//     }
 
-    // Create new user
-    user = new User({
-      email,
-      password, // Password will be hashed by the pre-save hook in the User model
-      name: name || 'User', // Default name if not provided
-    });
+//     user = new User({
+//       email,
+//       password,
+//       name: name || 'User',
+//     });
 
-    await user.save();
+//     await user.save();
 
-    // Generate JWT
-    const payload = {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-    };
+//     const payload = {
+//       user: {
+//         id: user.id,
+//         email: user.email,
+//         name: user.name,
+//         role: user.role,
+//       },
+//     };
 
-    jwt.sign(
-      payload,
-      JWT_SECRET,
-      { expiresIn: '1h' }, // Token expires in 1 hour
-      (err, token) => {
-        if (err) throw err;
-        res.status(201).json({ token, user: payload.user });
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+//     jwt.sign(
+//       payload,
+//       JWT_SECRET,
+//       { expiresIn: '1h' },
+//       (err, token) => {
+//         if (err) throw err;
+//         res.status(201).json({ token, user: payload.user });
+//       }
+//     );
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
 
 // @route   POST /api/auth/login
-// @desc    Authenticate user & get token
+// @desc    Authenticate user & get token (REMOVED - Firebase handles this)
 // @access  Public
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
 
-  try {
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid Credentials' });
-    }
+//   try {
+//     let user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ message: 'Invalid Credentials' });
+//     }
 
-    // Compare password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid Credentials' });
-    }
+//     const isMatch = await user.comparePassword(password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: 'Invalid Credentials' });
+//     }
 
-    // Generate JWT
-    const payload = {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-    };
+//     const payload = {
+//       user: {
+//         id: user.id,
+//         email: user.email,
+//         name: user.name,
+//         role: user.role,
+//       },
+//     };
 
-    jwt.sign(
-      payload,
-      JWT_SECRET,
-      { expiresIn: '1h' }, // Token expires in 1 hour
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token, user: payload.user });
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+//     jwt.sign(
+//       payload,
+//       JWT_SECRET,
+//       { expiresIn: '1h' },
+//       (err, token) => {
+//         if (err) throw err;
+//         res.json({ token, user: payload.user });
+//       }
+//     );
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+// You might keep this file for other auth-related endpoints if needed,
+// but for now, it's empty as login/register are handled by Firebase.
 
 module.exports = router;

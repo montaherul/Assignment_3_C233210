@@ -6,7 +6,7 @@ import Footer from "../../Footer/Footer";
 
 const Order = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); // Get user from AuthContext
+  const { user, firebaseUser } = useAuth(); // Get user and firebaseUser from AuthContext
 
   const product = useLoaderData();
   const { _id, title, price, image, description } = product; // Use _id from MongoDB
@@ -23,10 +23,10 @@ const Order = () => {
   const [senderNumber, setSenderNumber] = useState("");
 
   useEffect(() => {
-    if (user) {
+    if (user) { // Use the custom user object from AuthContext
       setCustomerName(user.name || "");
-      // You might want to pre-fill phone/address if available in user profile
-      // setPhone(user.phoneNumber || "");
+      setPhone(user.phoneNumber || ""); // Pre-fill phone if available
+      // You might want to pre-fill address if available in user profile
       // setPhysicalAddress(user.addresses?.[0]?.street || "");
     } else {
       // This case should ideally be caught by ProtectedRoute, but good for fallback
@@ -38,7 +38,7 @@ const Order = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!user) {
+    if (!user || !firebaseUser) { // Ensure both custom user and firebaseUser are available
       alert("You must be logged in to place an order.");
       navigate("/login");
       setLoading(false);
@@ -58,7 +58,7 @@ const Order = () => {
         price: price,
         customerName: customerName,
         email: user.email,
-        userId: user.id, // Use user.id from JWT payload
+        userId: user.uid, // Use user.uid (Firebase UID)
         physicalAddress: physicalAddress,
         mapEmbedLink: mapEmbedLink,
         phone: phone,
@@ -68,12 +68,12 @@ const Order = () => {
         status: initialStatus,
       };
 
-      const token = localStorage.getItem('token');
+      const token = await firebaseUser.getIdToken(); // Get Firebase ID token
       const response = await fetch("http://localhost:5000/api/orders", { // New orders API endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': token, // Send JWT token for authentication
+          'x-auth-token': token, // Send Firebase ID token for authentication
         },
         body: JSON.stringify(orderData),
       });

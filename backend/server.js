@@ -40,10 +40,12 @@ app.get('/', (req, res) => {
   res.send('myproject Backend API is running!');
 });
 
-// Auth Routes
+// Auth Routes (for custom backend auth, now primarily for token verification)
 app.use('/api/auth', require('./routes/authRoutes'));
 // Product Routes - Ensure this is correctly applied
 app.use('/api/products', require('./routes/productRoutes'));
+// User Routes - NEW!
+app.use('/api/users', require('./routes/userRoutes'));
 
 // --- Product Seeding Function ---
 async function seedProducts() {

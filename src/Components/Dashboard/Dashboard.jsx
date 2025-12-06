@@ -3,49 +3,57 @@ import { useNavigate, Link } from "react-router-dom";
 import Navigation from "../Navigation/Navigation";
 import Footer from "../../Footer/Footer";
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
-// import { db } from "../firebase/firebase.int"; // Firebase import removed
-// import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore"; // Firebase imports removed
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, loading, logout } = useAuth(); // Get user, loading, and logout from AuthContext
+  const { user, firebaseUser, loading, logout } = useAuth(); // Get user, firebaseUser, loading, and logout from AuthContext
 
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true); // Renamed to avoid conflict with auth loading
 
   // 1. CHECK LOGIN STATUS & REDIRECT IF NOT LOGGED IN
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user) { // Check for custom user object
       navigate("/login");
     }
   }, [user, loading, navigate]);
 
-  // 2. FETCH ORDERS FOR THIS USER (Placeholder for backend API)
+  // 2. FETCH ORDERS FOR THIS USER
   useEffect(() => {
-    if (!user) return;
+    if (!user || !firebaseUser) return; // Ensure both custom user and firebaseUser are available
 
-    // --- Placeholder for fetching orders from your new backend API ---
-    // This part will be implemented once we set up the backend API for orders.
-    // For now, we'll simulate loading and then show no orders.
     setOrdersLoading(true);
     const fetchUserOrders = async () => {
-      // In a real scenario, you'd make an API call here:
-      // const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}`, {
-      //   headers: {
-      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
-      //   }
-      // });
-      // const data = await response.json();
-      // setOrders(data);
-      setTimeout(() => { // Simulate API call
-        setOrders([]); // No orders for now, as Firebase is removed
+      try {
+        const token = await firebaseUser.getIdToken(); // Get Firebase ID token
+        const response = await fetch(`http://localhost:5000/api/orders/user/${user.uid}`, { // Use user.uid (Firebase UID)
+          headers: {
+            'x-auth-token': token, // Send Firebase ID token for authentication
+          }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          const ordersList = data.map(order => ({
+            ...order,
+            docId: order._id, // Use MongoDB _id as docId for consistency
+            date: new Date(order.createdAt), // Convert string to Date object
+          }));
+          setOrders(ordersList);
+        } else {
+          console.error("Failed to fetch orders:", data.message);
+          setOrders([]);
+        }
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setOrders([]);
+      } finally {
         setOrdersLoading(false);
-      }, 1000);
+      }
     };
     fetchUserOrders();
-    // --- End Placeholder ---
 
-  }, [user]);
+  }, [user, firebaseUser]); // Depend on user and firebaseUser
 
   // 3. LOGOUT FUNCTION
   const handleLogout = () => {
@@ -55,27 +63,43 @@ const Dashboard = () => {
 
   // Placeholder for cancelOrder function (will need backend API)
   const cancelOrder = async (orderId) => {
-    alert("Order cancellation is not yet implemented with the new backend.");
-    // try {
-    //   // API call to backend to cancel order
-    //   // const response = await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
-    //   //   method: 'PUT',
-    //   //   headers: {
-    //   //     'Content-Type': 'application/json',
-    //   //     'Authorization': `Bearer ${localStorage.getItem('token')}`
-    //   //   }
-    //   // });
-    //   // if (response.ok) {
-    //   //   alert("Order canceled successfully.");
-    //   //   // Re-fetch orders or update state
-    //   // } else {
-    //   //   const errorData = await response.json();
-    //   //   alert(`Failed to cancel order: ${errorData.message}`);
-    //   // }
-    // } catch (error) {
-    //   console.error("Cancel error:", error);
-    //   alert("Failed to cancel order. Try again.");
-    // }
+    if (!firebaseUser) {
+      alert("You must be logged in to cancel an order.");
+      navigate("/login");
+      return;
+    }
+    
+    const confirmCancel = window.confirm("Are you sure you want to cancel this order?");
+    if (!confirmCancel) return;
+
+    try {
+      const token = await firebaseUser.getIdToken();
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+        body: JSON.stringify({ status: 'Cancelled' }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Order canceled successfully.");
+        // Update local state to reflect cancellation
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.docId === orderId ? { ...order, status: 'Cancelled' } : order
+          )
+        );
+      } else {
+        alert(`Failed to cancel order: ${data.message || 'Server error'}`);
+      }
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Failed to cancel order. Try again.");
+    }
   };
 
 
@@ -92,7 +116,6 @@ const Dashboard = () => {
   }
 
   // If not loading and no user, it means navigate("/login") has been called.
-  // We can return null or a simple message here, as the redirect will handle it.
   if (!user) return null;
 
 
@@ -151,7 +174,7 @@ const Dashboard = () => {
               <div className="space-y-4">
                 {orders.map((order) => (
                   <div
-                    key={order.id}
+                    key={order.docId}
                     className="border border-border rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm bg-background/50"
                   >
                     <div className="flex items-center gap-4 mb-4 sm:mb-0">
@@ -195,16 +218,14 @@ const Dashboard = () => {
 
                       <p className="text-xs text-muted-foreground mt-1">
                         {order.createdAt
-                          ? new Date(
-                              order.createdAt.seconds * 1000
-                            ).toLocaleString()
+                          ? new Date(order.createdAt).toLocaleString() // createdAt is now a string/ISO date
                           : "Processing..."}
                       </p>
 
                       {/* CANCEL BUTTON (Only show if Pending) */}
                       {order.status === "Pending" && (
                         <button
-                          onClick={() => cancelOrder(order.id)}
+                          onClick={() => cancelOrder(order.docId)}
                           className="mt-3 bg-destructive text-destructive-foreground text-sm px-4 py-2 rounded-lg shadow-sm hover:bg-red-600 transition-colors font-medium"
                         >
                           Cancel Order

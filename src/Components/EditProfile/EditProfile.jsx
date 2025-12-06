@@ -30,35 +30,18 @@ const EditProfile = () => {
   const saveProfile = async () => {
     setIsSaving(true);
     try {
-      // --- Placeholder for updating profile via backend API ---
-      // In a real scenario, you'd make an API call here:
-      // const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
-      //   },
-      //   body: JSON.stringify({ name, photoURL, phoneNumber })
-      // });
-      // if (response.ok) {
-      //   const updatedUser = await response.json();
-      //   updateUser(updatedUser); // Update AuthContext state
-      //   alert("Profile Updated Successfully!");
-      // } else {
-      //   const errorData = await response.json();
-      //   alert(`Error updating profile: ${errorData.message}`);
-      // }
+      const result = await updateUser({ name, photoURL, phoneNumber }); // Use updateUser from AuthContext
       
-      // Simulate API call
-      setTimeout(() => {
-        updateUser({ name, photoURL, phoneNumber }); // Update local AuthContext state
-        alert("Profile Updated Successfully! (Backend integration pending)");
-        setIsSaving(false);
-      }, 1000);
+      if (result.success) {
+        alert("Profile Updated Successfully!");
+      } else {
+        alert(`Error updating profile: ${result.message}`);
+      }
 
     } catch (error) {
       console.error(error);
       alert("Error updating profile");
+    } finally {
       setIsSaving(false);
     }
   };

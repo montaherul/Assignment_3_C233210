@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Navigation from "../Navigation/Navigation";
-// import { db, auth } from "../firebase/firebase.int"; // Firebase imports removed
-// import { collection, getDocs, query, orderBy, doc, updateDoc } from "firebase/firestore"; // Firebase imports removed
-// import { onAuthStateChanged } from "firebase/auth"; // Firebase imports removed
 import { useNavigate, Link } from "react-router-dom"; // Import Link
 import Footer from "../../Footer/Footer";
 import MapModal from "../MapModal/MapModal"; // Import the new MapModal component
@@ -10,7 +7,7 @@ import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 
 const AdminOrders = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth(); // Get user and loading from AuthContext
+  const { user, firebaseUser, loading } = useAuth(); // Get user, firebaseUser and loading from AuthContext
 
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -24,23 +21,23 @@ const AdminOrders = () => {
   // Check admin login
   useEffect(() => {
     if (!loading) {
-      if (user && user.role === 'admin') { // Check user role from AuthContext
+      if (user && user.role === 'admin' && firebaseUser) { // Check user role from AuthContext and firebaseUser
         fetchOrders();
       } else {
         alert("Access Denied: You are not an Admin.");
         navigate("/dashboard");
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, firebaseUser, loading, navigate]);
 
-  // Fetch Orders (Placeholder for backend API)
+  // Fetch Orders
   const fetchOrders = async () => {
     setOrdersLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = await firebaseUser.getIdToken(); // Get Firebase ID token
       const response = await fetch("http://localhost:5000/api/orders", { // New orders API endpoint
         headers: {
-          'x-auth-token': token, // Send JWT token for authentication
+          'x-auth-token': token, // Send Firebase ID token for authentication
         },
       });
 
@@ -65,12 +62,12 @@ const AdminOrders = () => {
     }
   };
 
-  // Update Order Status (Placeholder for backend API)
+  // Update Order Status
   const handleStatusChange = async (orderDocId, newStatus) => {
     setUpdatingId(orderDocId);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = await firebaseUser.getIdToken(); // Get Firebase ID token
       const response = await fetch(`http://localhost:5000/api/orders/${orderDocId}/status`, { // New API endpoint for status update
         method: 'PUT',
         headers: {
