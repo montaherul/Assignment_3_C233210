@@ -13,14 +13,14 @@ const Root = () => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
-        // Fetch a few products from your backend API
+        // Fetch products from your backend API
         const response = await fetch("http://localhost:5000/api/products"); 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        // Take the first 4 products as featured
-        setFeaturedProducts(data.slice(0, 4)); 
+        // Take the first 3 products as featured to make space for the "See More" card
+        setFeaturedProducts(data.slice(0, 3)); 
       } catch (err) {
         setError(err.message);
       } finally {
@@ -82,6 +82,26 @@ const Root = () => {
                   <Product pdt={product} />
                 </div>
               ))}
+              {/* "See More" Card */}
+              <div 
+                className="opacity-0 animate-slide-up-fade-in" 
+                style={{ animationDelay: `${0.1 * featuredProducts.length}s` }}
+              >
+                <Link 
+                  to="/products" 
+                  className="group flex flex-col items-center justify-center h-full bg-card rounded-xl shadow-sm hover:shadow-lg border border-border transition-all duration-300 transform hover:-translate-y-1 p-6 text-center"
+                >
+                  <svg className="w-16 h-16 text-primary group-hover:text-sky-700 transition-colors mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                  <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors mb-2">
+                    See All Products
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    Discover our full collection.
+                  </p>
+                </Link>
+              </div>
             </div>
           )}
         </section>
