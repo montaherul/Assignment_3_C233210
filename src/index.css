@@ -2,36 +2,37 @@
 
 /* Removed tw-animate-css import that was causing errors */
 
+/* Default theme (now dark) */
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
+  --color-background: #1a1a2e; /* Deep blue-gray */
+  --color-foreground: #e0e0e0; /* Light gray for text */
 
-  --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
+  --color-card: #2c2c4a; /* Slightly lighter dark for cards */
+  --color-card-foreground: #e0e0e0;
 
-  --color-popover: #ffffff;
-  --color-popover-foreground: #0a0a0a;
+  --color-popover: #2c2c4a;
+  --color-popover-foreground: #e0e0e0;
 
-  --color-primary: #9333ea;
-  --color-primary-foreground: #fafafa;
+  --color-primary: #6a0dad; /* Vibrant Indigo/Purple accent */
+  --color-primary-foreground: #ffffff;
 
-  --color-secondary: #f5f5f5;
-  --color-secondary-foreground: #171717;
+  --color-secondary: #3a3a5a; /* Muted dark for secondary elements */
+  --color-secondary-foreground: #e0e0e0;
 
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
+  --color-muted: #4a4a6a; /* Even more muted dark */
+  --color-muted-foreground: #b0b0b0; /* Lighter muted text */
 
-  --color-accent: #f5f5f5;
-  --color-accent-foreground: #171717;
+  --color-accent: #6a0dad; /* Using primary as accent for vibrancy */
+  --color-accent-foreground: #ffffff;
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #fafafa;
 
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #9333ea;
+  --color-border: #4a4a6a; /* Darker border */
+  --color-input: #3a3a5a; /* Darker input background */
+  --color-ring: #6a0dad; /* Accent color for focus rings */
 
-  --radius: 0.5rem;
+  --radius: 0.75rem; /* Slightly larger radius for a modern feel */
 }
 
 * {
@@ -42,4 +43,25 @@ body {
   color: var(--color-foreground);
   background: var(--color-background);
   font-feature-settings: "rlig" 1, "calt" 1;
+  /* Smooth transitions for theme changes */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
