@@ -2,7 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const redis = require('redis'); // Import redis client
+const redis = require('redis');
+const fs = require('fs'); // Import file system module
+const path = require('path'); // Import path module
+const Product = require('./models/Product'); // Import Product model
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,7 +13,10 @@ const MONGO_URI = process.env.MONGO_URI;
 
 // --- MongoDB Connection ---
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected successfully'))
+  .then(() => {
+    console.log('MongoDB connected successfully');
+    seedProducts(); // Call seeding function after successful connection
+  })
   .catch(err => console.error('MongoDB connection error:', err));
 
 // --- Redis Client (for future use) ---
@@ -37,6 +43,41 @@ app.get('/', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 // Product Routes
 app.use('/api/products', require('./routes/productRoutes'));
+
+// --- Product Seeding Function ---
+async function seedProducts() {
+  try {
+    const productCount = await Product.countDocuments();
+    if (productCount === 0) {
+      const productsJsonPath = path.join(__dirname, 'products.json');
+      const rawData = fs.readFileSync(productsJsonPath);
+      const { products } = JSON.parse(rawData);
+
+      const productsToInsert = products.map(p => ({
+        title: p.title,
+        slug: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, ''),
+        price: p.price,
+        description: p.description,
+        category: p.category,
+        image: p.thumbnail || p.images[0], // Use thumbnail or first image
+        stock: p.stock,
+        rating: {
+          rate: p.rating,
+          count: p.reviews ? p.reviews.length : 0,
+        },
+        createdAt: new Date(p.meta.createdAt),
+        updatedAt: new Date(p.meta.updatedAt),
+      }));
+
+      await Product.insertMany(productsToInsert);
+      console.log('Products seeded successfully from products.json!');
+    } else {
+      console.log('Products already exist in DB, skipping seeding.');
+    }
+  } catch (error) {
+    console.error('Error seeding products:', error);
+  }
+}
 
 // --- Start Server ---
 app.listen(PORT, () => {

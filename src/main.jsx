@@ -16,6 +16,7 @@ import Dashboard from './Components/Dashboard/Dashboard.jsx';
 import Register from './Components/Register/Register.jsx';
 import EditProfile from './Components/EditProfile/EditProfile.jsx';
 import AdminOrders from './Components/Admin/AdminOrders.jsx';
+import CreateProduct from './Components/Admin/CreateProduct.jsx'; // Import CreateProduct
 import { AuthProvider } from './Components/AuthContext/AuthContext.jsx'; // Correct import for AuthProvider
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'; // Import ProtectedRoute
 
@@ -74,8 +75,12 @@ const router = createBrowserRouter([
     element: <ProtectedRoute><EditProfile /></ProtectedRoute>, // Protect the EditProfile route
   },
   {
-    path:"/admin/Orders",
+    path:"/admin/orders",
     element: <ProtectedRoute><AdminOrders /></ProtectedRoute>, // Protect the AdminOrders route
+  },
+  {
+    path:"/admin/products/create", // New route for creating products
+    element: <ProtectedRoute><CreateProduct /></ProtectedRoute>, // Protect the CreateProduct route
   }
 ]);
 

@@ -3,7 +3,7 @@ import Navigation from "../Navigation/Navigation";
 // import { db, auth } from "../firebase/firebase.int"; // Firebase imports removed
 // import { collection, getDocs, query, orderBy, doc, updateDoc } from "firebase/firestore"; // Firebase imports removed
 // import { onAuthStateChanged } from "firebase/auth"; // Firebase imports removed
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Import Link
 import Footer from "../../Footer/Footer";
 import MapModal from "../MapModal/MapModal"; // Import the new MapModal component
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
@@ -173,8 +173,13 @@ const AdminOrders = () => {
             </h1>
             <p className="text-muted-foreground">Manage customer orders.</p>
           </div>
-          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm shadow-sm">
-            {orders.length} Orders
+          <div className="flex gap-3"> {/* Added flex container for buttons */}
+            <Link to="/admin/products/create" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-sm shadow-sm hover:bg-sky-700 transition">
+              Create Product
+            </Link>
+            <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm shadow-sm">
+              {orders.length} Orders
+            </div>
           </div>
         </div>
 
