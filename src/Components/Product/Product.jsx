@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Product = ({ pdt }) => {
-  const { id, title, image, description, price } = pdt;
+  // Destructure _id instead of id, as MongoDB uses _id
+  const { _id, title, image, description, price } = pdt;
 
   return (
     <div className="group flex flex-col bg-card rounded-xl shadow-sm hover:shadow-lg border border-border transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
@@ -34,7 +35,8 @@ const Product = ({ pdt }) => {
         </p>
 
         {/* Action Button */}
-        <Link to={`/products/${id}`} className="mt-auto">
+        {/* Use _id for the product details link */}
+        <Link to={`/products/${_id}`} className="mt-auto">
           <button className="w-full py-3 px-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-sky-700 transition-colors duration-300 flex items-center justify-center gap-2">
             View Details
             <svg
