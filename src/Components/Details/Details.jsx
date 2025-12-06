@@ -1,14 +1,93 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Navigation from "../Navigation/Navigation";
 import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
+import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 
 const Details = () => {
   const product = useLoaderData();
   const navigate = useNavigate();
+  const { user, firebaseUser, loading: authLoading } = useAuth(); // Get user, firebaseUser, and authLoading from AuthContext
 
   // Destructure with fallbacks to prevent crashes
   const { _id, title, price, category, description, image } = product || {};
+
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistActionLoading, setWishlistActionLoading] = useState(false);
+
+  const API_BASE_URL = "http://localhost:5000/api";
+
+  // Check wishlist status on component mount or when user/product changes
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (user && firebaseUser && _id) {
+        try {
+          const token = await firebaseUser.getIdToken();
+          const response = await fetch(`${API_BASE_URL}/wishlist/status/${_id}`, {
+            headers: {
+              'x-auth-token': token,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setIsWishlisted(data.isWishlisted);
+          } else {
+            console.error("Failed to check wishlist status:", data.message);
+            setIsWishlisted(false); // Assume not wishlisted on error
+          }
+        } catch (error) {
+          console.error("Error checking wishlist status:", error);
+          setIsWishlisted(false); // Assume not wishlisted on network error
+        }
+      } else {
+        setIsWishlisted(false); // Not logged in or no product ID
+      }
+    };
+
+    if (!authLoading) { // Only check once auth state is determined
+      checkWishlistStatus();
+    }
+  }, [user, firebaseUser, _id, authLoading]);
+
+  // Function to add/remove product from wishlist
+  const toggleWishlist = async () => {
+    if (!user || !firebaseUser) {
+      alert("Please log in to add items to your wishlist.");
+      navigate("/login");
+      return;
+    }
+
+    setWishlistActionLoading(true);
+    try {
+      const token = await firebaseUser.getIdToken();
+      const method = isWishlisted ? 'DELETE' : 'POST';
+      const url = isWishlisted ? `${API_BASE_URL}/wishlist/${_id}` : `${API_BASE_URL}/wishlist`;
+      const body = isWishlisted ? null : JSON.stringify({ productId: _id });
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+        body: body,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsWishlisted(!isWishlisted); // Toggle state
+        alert(isWishlisted ? "Removed from wishlist!" : "Added to wishlist!");
+      } else {
+        alert(`Failed to update wishlist: ${data.message || 'Server error'}`);
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      alert("Failed to update wishlist. Please try again.");
+    } finally {
+      setWishlistActionLoading(false);
+    }
+  };
 
   // Helper to render static stars for the UI design
   const renderStars = () => (
@@ -119,21 +198,36 @@ const Details = () => {
                 </button>
               </Link>
 
-              <button className="flex-1 flex items-center justify-center px-8 py-4 border border-border text-base font-medium rounded-xl text-foreground bg-card hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                Add to Wishlist
+              <button
+                onClick={toggleWishlist}
+                disabled={wishlistActionLoading || authLoading}
+                className={`flex-1 flex items-center justify-center px-8 py-4 border text-base font-medium rounded-xl transition-all ${
+                  isWishlisted
+                    ? "border-red-500 text-red-500 bg-red-50 hover:bg-red-100"
+                    : "border-border text-foreground bg-card hover:bg-secondary"
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
+              >
+                {wishlistActionLoading ? (
+                  <svg className="animate-spin h-5 w-5 mr-2 text-primary" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill={isWishlisted ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                )}
+                {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
               </button>
             </div>
 
