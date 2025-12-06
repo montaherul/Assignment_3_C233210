@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext/AuthContext';
-import { Star } from 'lucide-react'; // For star ratings
+import { Star, ThumbsUp, ThumbsDown } from 'lucide-react'; // For star ratings and like/dislike icons
+import { Link } from 'react-router-dom'; // Import Link for login prompt
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -238,6 +239,21 @@ const ReviewSection = ({ productId }) => {
                     {renderStars(review.rating)}
                   </div>
                   <p className="text-foreground text-sm mb-4">{review.comment}</p>
+
+                  {/* Like/Dislike Buttons (UI Only) */}
+                  <div className="flex items-center gap-4 text-muted-foreground text-sm mt-4">
+                    <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                      <ThumbsUp className="w-4 h-4" />
+                      <span>0</span> {/* Placeholder for likes */}
+                    </button>
+                    <button className="flex items-center gap-1 hover:text-destructive transition-colors">
+                      <ThumbsDown className="w-4 h-4" />
+                      <span>0</span> {/* Placeholder for dislikes */}
+                    </button>
+                    {user && (
+                      <button className="ml-auto text-primary hover:underline">Reply</button>
+                    )}
+                  </div>
 
                   {/* Replies Section */}
                   {review.replies && review.replies.length > 0 && (
