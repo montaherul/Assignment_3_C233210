@@ -35,45 +35,54 @@ app.use(cors({
 app.use(express.json()); // For parsing application/json
 
 // --- Routes ---
+// This root route is fine, it just confirms the server is running.
 app.get('/', (req, res) => {
   res.send('myproject Backend API is running!');
 });
 
 // Auth Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-// Product Routes
+// Product Routes - Ensure this is correctly applied
 app.use('/api/products', require('./routes/productRoutes'));
 
 // --- Product Seeding Function ---
 async function seedProducts() {
   try {
-    const productCount = await Product.countDocuments();
-    if (productCount === 0) {
-      const productsJsonPath = path.join(__dirname, 'products.json');
-      const rawData = fs.readFileSync(productsJsonPath);
-      const { products } = JSON.parse(rawData);
+    const productsJsonPath = path.join(__dirname, 'products.json');
+    const rawData = fs.readFileSync(productsJsonPath);
+    const { products } = JSON.parse(rawData);
 
-      const productsToInsert = products.map(p => ({
-        title: p.title,
-        slug: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, ''),
-        price: p.price,
-        description: p.description,
-        category: p.category,
-        image: p.thumbnail || p.images[0], // Use thumbnail or first image
-        stock: p.stock,
-        rating: {
-          rate: p.rating,
-          count: p.reviews ? p.reviews.length : 0,
-        },
-        createdAt: new Date(p.meta.createdAt),
-        updatedAt: new Date(p.meta.updatedAt),
-      }));
-
-      await Product.insertMany(productsToInsert);
-      console.log('Products seeded successfully from products.json!');
-    } else {
-      console.log('Products already exist in DB, skipping seeding.');
+    if (!products || products.length === 0) {
+      console.log('No products found in products.json to seed.');
+      return;
     }
+
+    const productCount = await Product.countDocuments();
+    if (productCount > 0) {
+      console.log('Existing products found in DB. Clearing and re-seeding...');
+      await Product.deleteMany({}); // Clear existing products
+    } else {
+      console.log('No existing products found in DB. Seeding...');
+    }
+
+    const productsToInsert = products.map(p => ({
+      title: p.title,
+      slug: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, ''),
+      price: p.price,
+      description: p.description,
+      category: p.category,
+      image: p.thumbnail || p.images[0], // Use thumbnail or first image
+      stock: p.stock,
+      rating: {
+        rate: p.rating,
+        count: p.reviews ? p.reviews.length : 0,
+      },
+      createdAt: new Date(p.meta.createdAt),
+      updatedAt: new Date(p.meta.updatedAt),
+    }));
+
+    await Product.insertMany(productsToInsert);
+    console.log(`Successfully seeded ${productsToInsert.length} products from products.json!`);
   } catch (error) {
     console.error('Error seeding products:', error);
   }

@@ -10,6 +10,7 @@ const adminAuth = require('../middleware/adminAuth');
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find();
+    console.log(`Fetched ${products.length} products from DB.`); // Added console log
     res.json(products);
   } catch (err) {
     console.error(err.message);
