@@ -10,7 +10,8 @@ const auth = require('../middleware/auth'); // For user authentication
 router.get('/', auth, async (req, res) => {
   try {
     const userId = req.user.id; // Firebase UID from auth middleware
-    let cart = await Cart.findOne({ userId }).populate('items.productId', 'title price image stock');
+    // Populate with necessary product fields including discountPercentage
+    let cart = await Cart.findOne({ userId }).populate('items.productId', 'title price image stock discountPercentage');
 
     if (!cart) {
       // If no cart exists, return an empty cart
@@ -61,13 +62,13 @@ router.post('/', auth, async (req, res) => {
           productId,
           productTitle: product.title,
           productImage: product.image,
-          price: product.price,
+          price: product.price, // Store original price, discount applied on frontend
           quantity,
         });
       }
       await cart.save();
       // Re-populate the cart before sending it back
-      cart = await cart.populate('items.productId', 'title price image stock');
+      cart = await cart.populate('items.productId', 'title price image stock discountPercentage');
       res.json(cart);
     } else {
       // No cart for user, create new cart
@@ -77,13 +78,13 @@ router.post('/', auth, async (req, res) => {
           productId,
           productTitle: product.title,
           productImage: product.image,
-          price: product.price,
+          price: product.price, // Store original price, discount applied on frontend
           quantity,
         }],
       });
       await newCart.save();
       // Populate the new cart before sending it back
-      const populatedNewCart = await newCart.populate('items.productId', 'title price image stock');
+      const populatedNewCart = await newCart.populate('items.productId', 'title price image stock discountPercentage');
       res.status(201).json(populatedNewCart);
     }
   } catch (err) {
@@ -122,7 +123,7 @@ router.put('/:productId', auth, async (req, res) => {
       await cart.save();
 
       // IMPORTANT: Re-populate the cart before sending it back
-      cart = await cart.populate('items.productId', 'title price image stock');
+      cart = await cart.populate('items.productId', 'title price image stock discountPercentage');
       res.json(cart);
     } else {
       return res.status(404).json({ message: 'Item not found in cart.' });
@@ -150,7 +151,7 @@ router.delete('/:productId', auth, async (req, res) => {
     cart.items = cart.items.filter(item => item.productId.toString() !== productId);
     await cart.save();
     // Re-populate the cart before sending it back
-    cart = await cart.populate('items.productId', 'title price image stock');
+    cart = await cart.populate('items.productId', 'title price image stock discountPercentage');
     res.json(cart);
   } catch (err) {
     console.error('Error removing cart item:', err.message);
@@ -168,13 +169,14 @@ router.delete('/clear', auth, async (req, res) => {
     let cart = await Cart.findOne({ userId });
 
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found for this user.' });
+      // If no cart exists, return an empty cart to confirm it's "cleared"
+      return res.json({ message: 'Cart not found for this user, nothing to clear.', cart: { userId, items: [] } });
     }
 
     cart.items = []; // Clear all items
     await cart.save();
     // Re-populate the cart (even if empty, to maintain structure)
-    cart = await cart.populate('items.productId', 'title price image stock');
+    cart = await cart.populate('items.productId', 'title price image stock discountPercentage');
     res.json({ message: 'Cart cleared successfully.', cart });
   } catch (err) {
     console.error('Error clearing cart:', err.message);

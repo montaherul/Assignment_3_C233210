@@ -57,14 +57,20 @@ const CheckoutPage = () => {
 
   // Calculate totals whenever cart, discount, or delivery charge changes
   const calculateTotals = useCallback(() => {
-    const currentSubtotal = cartTotalPrice;
+    const currentSubtotal = cart.items.reduce((total, item) => {
+      const itemPrice = item.productId.discountPercentage > 0
+        ? item.productId.price * (1 - item.productId.discountPercentage / 100)
+        : item.productId.price;
+      return total + (itemPrice * item.quantity);
+    }, 0);
+
     const currentDiscountAmount = currentSubtotal * (discountPercentage / 100);
     const currentTotal = currentSubtotal - currentDiscountAmount + DELIVERY_CHARGE;
 
     setSubtotal(currentSubtotal);
     setDiscountAmount(currentDiscountAmount);
     setTotalPayable(currentTotal);
-  }, [cartTotalPrice, discountPercentage]);
+  }, [cart, discountPercentage]); // Depend on cart and discountPercentage
 
   useEffect(() => {
     calculateTotals();
@@ -125,11 +131,17 @@ const CheckoutPage = () => {
           initialStatus = "Payment Pending";
         }
 
+        // Calculate the actual price for the order based on discount
+        const itemOriginalPrice = item.productId.price;
+        const itemDiscountPercentage = item.productId.discountPercentage || 0;
+        const itemDiscountedPrice = itemOriginalPrice * (1 - itemDiscountPercentage / 100);
+        const finalItemPriceForOrder = itemDiscountedPrice * item.quantity;
+
         ordersToPlace.push({
           productId: item.productId._id,
           productTitle: item.productTitle,
           productImage: item.productImage,
-          price: item.price * item.quantity, // Total price for this item's quantity
+          price: finalItemPriceForOrder, // Total price for this item's quantity, with discount applied
           customerName: customerName,
           email: user.email,
           userId: user.uid,
@@ -408,20 +420,34 @@ const CheckoutPage = () => {
 
                 {/* Cart Items List */}
                 <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
-                  {cart.items.map((item) => (
-                    <div key={item.productId._id} className="flex items-center gap-3">
-                      <img
-                        src={item.productImage}
-                        alt={item.productTitle}
-                        className="w-16 h-16 object-contain rounded-md border border-border p-1"
-                      />
-                      <div className="flex-grow">
-                        <p className="font-medium text-foreground text-sm line-clamp-1">{item.productTitle}</p>
-                        <p className="text-muted-foreground text-xs">Qty: {item.quantity} x ${item.price.toFixed(2)}</p>
+                  {cart.items.map((item) => {
+                    const originalPrice = item.productId.price;
+                    const discountPercentage = item.productId.discountPercentage || 0;
+                    const discountedPrice = originalPrice * (1 - discountPercentage / 100);
+                    const itemTotalPrice = discountedPrice * item.quantity;
+
+                    return (
+                      <div key={item.productId._id} className="flex items-center gap-3">
+                        <img
+                          src={item.productImage}
+                          alt={item.productTitle}
+                          className="w-16 h-16 object-contain rounded-md border border-border p-1"
+                        />
+                        <div className="flex-grow">
+                          <p className="font-medium text-foreground text-sm line-clamp-1">{item.productTitle}</p>
+                          <div className="flex items-center gap-2">
+                            {discountPercentage > 0 && (
+                              <span className="text-muted-foreground line-through text-xs">
+                                ${originalPrice.toFixed(2)}
+                              </span>
+                            )}
+                            <p className="text-muted-foreground text-xs">Qty: {item.quantity} x ${discountedPrice.toFixed(2)}</p>
+                          </div>
+                        </div>
+                        <p className="font-semibold text-foreground">${itemTotalPrice.toFixed(2)}</p>
                       </div>
-                      <p className="font-semibold text-foreground">${(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Coupon Input */}

@@ -4,9 +4,11 @@ import { useCart } from "../CartContext/CartContext"; // NEW: Import useCart hoo
 import { ShoppingCart } from 'lucide-react'; // NEW: Import ShoppingCart icon
 
 const Product = ({ pdt }) => {
-  const { _id, title, image, description, price } = pdt;
+  const { _id, title, image, description, price, discountPercentage } = pdt; // NEW: discountPercentage
   const { addItemToCart } = useCart(); // NEW: Get addItemToCart from CartContext
   const [isAdding, setIsAdding] = useState(false); // NEW: State for loading indicator
+
+  const discountedPrice = discountPercentage > 0 ? price * (1 - discountPercentage / 100) : price;
 
   const handleAddToCart = async () => {
     setIsAdding(true);
@@ -28,6 +30,11 @@ const Product = ({ pdt }) => {
           alt={title}
           className="object-contain h-full w-full group-hover:scale-105 transition-transform duration-500"
         />
+        {discountPercentage > 0 && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            -{discountPercentage}%
+          </span>
+        )}
       </div>
 
       {/* Content Section */}
@@ -40,7 +47,16 @@ const Product = ({ pdt }) => {
           >
             {title}
           </h3>
-          <span className="text-lg font-bold text-primary">${price}</span>
+          <div className="flex flex-col items-end">
+            {discountPercentage > 0 && (
+              <span className="text-sm text-muted-foreground line-through">
+                ${price.toFixed(2)}
+              </span>
+            )}
+            <span className="text-lg font-bold text-primary">
+              ${discountedPrice.toFixed(2)}
+            </span>
+          </div>
         </div>
 
         {/* Description (Truncated to 2 lines) */}

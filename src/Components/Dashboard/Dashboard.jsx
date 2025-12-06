@@ -147,12 +147,20 @@ const Dashboard = () => {
                 Logout
               </button>
               {user?.role === 'admin' && ( // Updated to check user.role
-                <button
-                  onClick={() => navigate("/admin/orders")}
-                  className="px-5 py-2 bg-primary text-primary-foreground rounded-lg shadow-sm hover:bg-sky-700 transition-colors text-sm font-medium"
-                >
-                  Admin Panel
-                </button>
+                <>
+                  <button
+                    onClick={() => navigate("/admin/orders")}
+                    className="px-5 py-2 bg-primary text-primary-foreground rounded-lg shadow-sm hover:bg-sky-700 transition-colors text-sm font-medium"
+                  >
+                    Admin Panel
+                  </button>
+                  <button
+                    onClick={() => navigate("/admin/users")} {/* NEW: Manage Users button */}
+                    className="px-5 py-2 bg-secondary text-secondary-foreground rounded-lg shadow-sm hover:bg-muted transition-colors text-sm font-medium"
+                  >
+                    Manage Users
+                  </button>
+                </>
               )}
               <Link to="/editprofile" className="px-5 py-2 bg-secondary text-secondary-foreground rounded-lg shadow-sm hover:bg-muted transition-colors text-sm font-medium">
                 Edit Profile

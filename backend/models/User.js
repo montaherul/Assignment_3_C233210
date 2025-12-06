@@ -37,6 +37,11 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user',
   },
+  status: { // NEW: User status for blocking/unblocking
+    type: String,
+    enum: ['active', 'blocked'],
+    default: 'active',
+  },
   addresses: [
     {
       label: String,

@@ -56,7 +56,7 @@ router.get('/:id', async (req, res) => {
 // @desc    Create a new product
 // @access  Private (Admin only)
 router.post('/', [auth, adminAuth], async (req, res) => {
-  const { title, price, description, category, image, stock } = req.body;
+  const { title, price, description, category, image, stock, discountPercentage } = req.body; // NEW: discountPercentage
 
   try {
     // Basic validation
@@ -75,6 +75,7 @@ router.post('/', [auth, adminAuth], async (req, res) => {
       category,
       image,
       stock,
+      discountPercentage: discountPercentage || 0, // NEW: Set discount, default to 0
     });
 
     const product = await newProduct.save();
@@ -92,16 +93,17 @@ router.post('/', [auth, adminAuth], async (req, res) => {
 // @desc    Update a product
 // @access  Private (Admin only)
 router.put('/:id', [auth, adminAuth], async (req, res) => {
-  const { title, price, description, category, image, stock } = req.body;
+  const { title, price, description, category, image, stock, discountPercentage } = req.body; // NEW: discountPercentage
 
   // Build product object
   const productFields = {};
   if (title) productFields.title = title;
-  if (price) productFields.price = price;
+  if (price !== undefined) productFields.price = price; // Allow 0 price
   if (description) productFields.description = description;
   if (category) productFields.category = category;
   if (image) productFields.image = image;
-  if (stock) productFields.stock = stock;
+  if (stock !== undefined) productFields.stock = stock; // Allow 0 stock
+  if (discountPercentage !== undefined) productFields.discountPercentage = discountPercentage; // NEW: Update discount
   if (title) productFields.slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, '');
 
 

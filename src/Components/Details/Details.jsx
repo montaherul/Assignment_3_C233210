@@ -15,7 +15,9 @@ const Details = () => {
   const { addItemToCart } = useCart(); // NEW: Get addItemToCart from CartContext
 
   // Destructure with fallbacks to prevent crashes
-  const { _id, title, price, category, description, image } = product || {};
+  const { _id, title, price, category, description, image, discountPercentage } = product || {}; // NEW: discountPercentage
+
+  const discountedPrice = discountPercentage > 0 ? price * (1 - discountPercentage / 100) : price;
 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistActionLoading, setWishlistActionLoading] = useState(false);
@@ -197,6 +199,11 @@ const Details = () => {
                 alt={title}
                 className="object-contain w-full h-full transform hover:scale-105 transition-transform duration-500"
               />
+              {discountPercentage > 0 && (
+                <span className="absolute top-2 left-2 bg-red-500 text-white text-sm font-bold px-2 py-1 rounded-full">
+                  -{discountPercentage}%
+                </span>
+              )}
             </div>
           </div>
 
@@ -217,7 +224,12 @@ const Details = () => {
 
             {/* Price */}
             <div className="mt-3 flex items-end">
-              <p className="text-4xl font-bold text-primary">${price}</p>
+              {discountPercentage > 0 && (
+                <p className="text-2xl text-muted-foreground line-through mr-2">
+                  ${price.toFixed(2)}
+                </p>
+              )}
+              <p className="text-4xl font-bold text-primary">${discountedPrice.toFixed(2)}</p>
               <span className="ml-2 text-sm text-muted-foreground mb-2">USD</span>
             </div>
 

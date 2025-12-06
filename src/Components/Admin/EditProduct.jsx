@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "../Navigation/Navigation";
 import Footer from "../../Footer/Footer";
 import { useAuth } from "../AuthContext/AuthContext";
 
-const CreateProduct = () => {
+const API_BASE_URL = "http://localhost:5000/api";
+
+const EditProduct = () => {
   const navigate = useNavigate();
-  const { user, firebaseUser, loading } = useAuth(); // Get user, firebaseUser, and loading
+  const { id } = useParams(); // Get product ID from URL
+  const { user, firebaseUser, loading: authLoading } = useAuth();
 
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
@@ -14,17 +17,48 @@ const CreateProduct = () => {
   const [category, setCategory] = useState("");
   const [image, setImage] = useState("");
   const [stock, setStock] = useState("");
-  const [discountPercentage, setDiscountPercentage] = useState(0); // NEW: Discount percentage
+  const [discountPercentage, setDiscountPercentage] = useState(""); // NEW: Discount percentage
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== "admin")) { // Check custom user role
-      alert("Access Denied: You are not authorized to create products.");
-      navigate("/dashboard");
+    if (!authLoading) {
+      if (user && user.role === 'admin' && firebaseUser) {
+        fetchProductDetails();
+      } else {
+        alert("Access Denied: You are not authorized to edit products.");
+        navigate("/dashboard");
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, firebaseUser, authLoading, navigate, id]);
+
+  const fetchProductDetails = async () => {
+    setLoadingProduct(true);
+    setError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setTitle(data.title);
+        setPrice(data.price);
+        setDescription(data.description);
+        setCategory(data.category);
+        setImage(data.image);
+        setStock(data.stock);
+        setDiscountPercentage(data.discountPercentage || 0); // Set discount, default to 0
+      } else {
+        throw new Error(data.message || "Failed to fetch product details.");
+      }
+    } catch (err) {
+      console.error("Error fetching product details:", err);
+      setError("Failed to load product details. Check console for details.");
+    } finally {
+      setLoadingProduct(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,18 +67,18 @@ const CreateProduct = () => {
     setIsSubmitting(true);
 
     if (!user || !firebaseUser) {
-      setError("You must be logged in to create a product.");
+      setError("You must be logged in to edit a product.");
       setIsSubmitting(false);
       return;
     }
 
     try {
       const token = await firebaseUser.getIdToken();
-      const response = await fetch("http://localhost:5000/api/products", {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-token": token, // Send Firebase ID token
+          "x-auth-token": token,
         },
         body: JSON.stringify({
           title,
@@ -60,37 +94,40 @@ const CreateProduct = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Product created successfully!");
-        // Clear form
-        setTitle("");
-        setPrice("");
-        setDescription("");
-        setCategory("");
-        setImage("");
-        setStock("");
-        setDiscountPercentage(0); // Reset discount
-        // Optionally navigate back to admin orders or product list
-        setTimeout(() => navigate("/admin/products"), 2000); // Redirect to product list
+        setSuccess("Product updated successfully!");
+        setTimeout(() => navigate("/admin/products"), 1500); // Redirect to product list
       } else {
-        setError(data.message || "Failed to create product.");
+        setError(data.message || "Failed to update product.");
       }
     } catch (err) {
-      console.error("Error creating product:", err);
+      console.error("Error updating product:", err);
       setError("Network error or server unavailable.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (loading || (user && user.role !== "admin")) {
+  if (authLoading || loadingProduct) {
     return (
       <>
         <Navigation />
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Verifying Admin Access...</p>
+            <p className="text-muted-foreground">Loading product details...</p>
           </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <p className="text-destructive font-bold">{error}</p>
         </div>
         <Footer />
       </>
@@ -104,10 +141,10 @@ const CreateProduct = () => {
         <div className="max-w-3xl w-full bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
           <div className="bg-card border-b border-border px-8 py-6">
             <h2 className="text-2xl font-bold text-foreground">
-              Create New Product
+              Edit Product: {title}
             </h2>
             <p className="text-muted-foreground text-sm mt-1">
-              Add a new product to your store.
+              Modify the details of this product.
             </p>
           </div>
 
@@ -246,7 +283,7 @@ const CreateProduct = () => {
                 disabled={isSubmitting}
                 className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-sky-700 focus:ring-4 focus:ring-primary/30 transition shadow-sm disabled:bg-primary/60 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Adding Product..." : "Add Product"}
+                {isSubmitting ? "Saving Changes..." : "Save Changes"}
               </button>
             </div>
           </form>
@@ -257,4 +294,4 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default EditProduct;

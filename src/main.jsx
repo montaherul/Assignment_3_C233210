@@ -17,6 +17,9 @@ import Register from './Components/Register/Register.jsx';
 import EditProfile from './Components/EditProfile/EditProfile.jsx';
 import AdminOrders from './Components/Admin/AdminOrders.jsx';
 import CreateProduct from './Components/Admin/CreateProduct.jsx'; // Import CreateProduct
+import AdminProducts from './Components/Admin/AdminProducts.jsx'; // NEW: Import AdminProducts
+import EditProduct from './Components/Admin/EditProduct.jsx'; // NEW: Import EditProduct
+import AdminUsers from './Components/Admin/AdminUsers.jsx'; // NEW: Import AdminUsers
 import Wishlist from './Components/Wishlist/Wishlist.jsx'; // Import Wishlist
 import CartPage from './Components/CartPage/CartPage.jsx'; // NEW: Import CartPage
 import CheckoutPage from './Components/CheckoutPage/CheckoutPage.jsx'; // NEW: Import CheckoutPage
@@ -85,6 +88,18 @@ const router = createBrowserRouter([
   {
     path:"/admin/products/create", // New route for creating products
     element: <ProtectedRoute><CreateProduct /></ProtectedRoute>, // Protect the CreateProduct route
+  },
+  {
+    path:"/admin/products", // NEW: Route for AdminProducts
+    element: <ProtectedRoute><AdminProducts /></ProtectedRoute>, // Protect the AdminProducts route
+  },
+  {
+    path:"/admin/products/edit/:id", // NEW: Route for EditProduct
+    element: <ProtectedRoute><EditProduct /></ProtectedRoute>, // Protect the EditProduct route
+  },
+  {
+    path:"/admin/users", // NEW: Route for AdminUsers
+    element: <ProtectedRoute><AdminUsers /></ProtectedRoute>, // Protect the AdminUsers route
   },
   {
     path: "/wishlist", // New route for wishlist

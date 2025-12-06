@@ -99,56 +99,70 @@ const CartPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Cart Items List */}
               <div className="lg:col-span-2 space-y-4">
-                {cart.items.map((item) => (
-                  <div
-                    key={item.productId._id}
-                    className="flex flex-col sm:flex-row items-center bg-card p-4 rounded-lg shadow-sm border border-border relative"
-                  >
-                    {isUpdating[item.productId._id] && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-card bg-opacity-70 rounded-lg z-10">
-                        <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                {cart.items.map((item) => {
+                  const originalPrice = item.productId.price;
+                  const discountPercentage = item.productId.discountPercentage || 0;
+                  const discountedPrice = originalPrice * (1 - discountPercentage / 100);
+                  const itemTotalPrice = discountedPrice * item.quantity;
+
+                  return (
+                    <div
+                      key={item.productId._id}
+                      className="flex flex-col sm:flex-row items-center bg-card p-4 rounded-lg shadow-sm border border-border relative"
+                    >
+                      {isUpdating[item.productId._id] && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-card bg-opacity-70 rounded-lg z-10">
+                          <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                      <img
+                        src={item.productImage}
+                        alt={item.productTitle}
+                        className="w-24 h-24 object-contain rounded-md mr-4 mb-4 sm:mb-0 border border-border p-1"
+                      />
+                      <div className="flex-grow text-center sm:text-left">
+                        <Link to={`/products/${item.productId._id}`} className="text-lg font-semibold text-foreground hover:text-primary transition-colors">
+                          {item.productTitle}
+                        </Link>
+                        <div className="flex items-center justify-center sm:justify-start gap-2">
+                          {discountPercentage > 0 && (
+                            <span className="text-muted-foreground line-through text-sm">
+                              ${originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                          <p className="text-primary font-medium">${discountedPrice.toFixed(2)}</p>
+                        </div>
+                        <div className="flex items-center justify-center sm:justify-start mt-2 space-x-2">
+                          <button
+                            onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1)}
+                            disabled={item.quantity <= 1 || isUpdating[item.productId._id]}
+                            className="p-1 rounded-full text-muted-foreground hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <MinusCircle className="w-5 h-5" />
+                          </button>
+                          <span className="font-medium text-foreground w-8 text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1)}
+                            disabled={isUpdating[item.productId._id]}
+                            className="p-1 rounded-full text-muted-foreground hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <PlusCircle className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
-                    )}
-                    <img
-                      src={item.productImage}
-                      alt={item.productTitle}
-                      className="w-24 h-24 object-contain rounded-md mr-4 mb-4 sm:mb-0 border border-border p-1"
-                    />
-                    <div className="flex-grow text-center sm:text-left">
-                      <Link to={`/products/${item.productId._id}`} className="text-lg font-semibold text-foreground hover:text-primary transition-colors">
-                        {item.productTitle}
-                      </Link>
-                      <p className="text-muted-foreground">${item.price.toFixed(2)}</p>
-                      <div className="flex items-center justify-center sm:justify-start mt-2 space-x-2">
+                      <div className="flex flex-col items-center sm:items-end mt-4 sm:mt-0">
+                        <p className="text-xl font-bold text-primary">${itemTotalPrice.toFixed(2)}</p>
                         <button
-                          onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1)}
-                          disabled={item.quantity <= 1 || isUpdating[item.productId._id]}
-                          className="p-1 rounded-full text-muted-foreground hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <MinusCircle className="w-5 h-5" />
-                        </button>
-                        <span className="font-medium text-foreground w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1)}
+                          onClick={() => handleRemoveItem(item.productId._id)}
                           disabled={isUpdating[item.productId._id]}
-                          className="p-1 rounded-full text-muted-foreground hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="mt-2 text-destructive hover:text-red-700 text-sm flex items-center gap-1"
                         >
-                          <PlusCircle className="w-5 h-5" />
+                          <Trash2 className="w-4 h-4" /> Remove
                         </button>
                       </div>
                     </div>
-                    <div className="flex flex-col items-center sm:items-end mt-4 sm:mt-0">
-                      <p className="text-xl font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
-                      <button
-                        onClick={() => handleRemoveItem(item.productId._id)}
-                        disabled={isUpdating[item.productId._id]}
-                        className="mt-2 text-destructive hover:text-red-700 text-sm flex items-center gap-1"
-                      >
-                        <Trash2 className="w-4 h-4" /> Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div className="flex justify-end mt-6">
                   <button
                     onClick={handleClearCart}

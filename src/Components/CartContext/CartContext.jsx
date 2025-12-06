@@ -175,7 +175,13 @@ export const CartProvider = ({ children }) => {
   };
 
   const cartTotalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
-  const cartTotalPrice = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const cartTotalPrice = cart.items.reduce((total, item) => {
+    // Calculate discounted price for each item
+    const itemPrice = item.productId.discountPercentage > 0 
+      ? item.productId.price * (1 - item.productId.discountPercentage / 100)
+      : item.productId.price;
+    return total + (itemPrice * item.quantity);
+  }, 0);
 
   const contextValue = {
     cart,

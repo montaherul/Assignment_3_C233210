@@ -174,6 +174,9 @@ const AdminOrders = () => {
             <Link to="/admin/products/create" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-sm shadow-sm hover:bg-sky-700 transition">
               Create Product
             </Link>
+            <Link to="/admin/products" className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg font-bold text-sm shadow-sm hover:bg-muted transition"> {/* NEW: Manage Products button */}
+              Manage Products
+            </Link>
             <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm shadow-sm">
               {orders.length} Orders
             </div>
