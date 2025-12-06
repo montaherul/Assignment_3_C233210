@@ -1,11 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
+import { Heart } from 'lucide-react'; // Import Heart icon from Lucide React
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout } = useAuth(); // Get user and logout from AuthContext
+  const { user, firebaseUser, logout } = useAuth(); // Get user, firebaseUser and logout from AuthContext
   const navigate = useNavigate();
+  const [wishlistCount, setWishlistCount] = useState(0); // State to hold wishlist count
+
+  const API_BASE_URL = "http://localhost:5000/api";
+
+  // Effect to fetch wishlist count when user logs in or changes
+  useEffect(() => {
+    const fetchWishlistCount = async () => {
+      if (user && firebaseUser) {
+        try {
+          const token = await firebaseUser.getIdToken();
+          const response = await fetch(`${API_BASE_URL}/wishlist/user/${user.uid}`, {
+            headers: {
+              'x-auth-token': token,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setWishlistCount(data.length);
+          } else {
+            console.error("Failed to fetch wishlist count:", data.message);
+            setWishlistCount(0);
+          }
+        } catch (error) {
+          console.error("Error fetching wishlist count:", error);
+          setWishlistCount(0);
+        }
+      } else {
+        setWishlistCount(0); // Reset count if no user
+      }
+    };
+
+    fetchWishlistCount();
+    // Re-fetch if user or firebaseUser changes
+  }, [user, firebaseUser]);
 
   const handleLogout = () => {
     logout(); // Call logout from AuthContext
@@ -49,25 +84,34 @@ const Navigation = () => {
               </NavLink>
             ))}
 
-            {/* If user logged in → show Logout */}
+            {/* If user logged in → show Logout and Wishlist */}
             {user ? (
               <div className="flex items-center gap-3">
+                {/* Wishlist Icon */}
+                <NavLink to="/wishlist" className="relative p-2 rounded-full hover:bg-secondary transition-colors">
+                  <Heart className="w-5 h-5 text-foreground" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </NavLink>
+
                 {/* Profile picture or initial */}
-                
-                  <NavLink to="/dashboard">
-                    {user.photoURL ? (
-                      <img
-                        src={user.photoURL}
-                        className="w-8 h-8 rounded-full border border-border"
-                        referrerPolicy="no-referrer"
-                        alt="User Avatar"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 bg-secondary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                        {user.name?.charAt(0).toUpperCase() || "U"}
-                      </div>
-                    )}
-                  </NavLink>
+                <NavLink to="/dashboard">
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      className="w-8 h-8 rounded-full border border-border object-cover"
+                      referrerPolicy="no-referrer"
+                      alt="User Avatar"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-secondary text-primary-foreground rounded-full flex items-center justify-center font-bold">
+                      {user.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                </NavLink>
                 
 
                 <button
@@ -120,6 +164,18 @@ const Navigation = () => {
                 {link.label}
               </NavLink>
             ))}
+
+            {/* Mobile Wishlist Link */}
+            {user && (
+              <NavLink
+                to="/wishlist"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-secondary flex items-center gap-2"
+              >
+                <Heart className="w-5 h-5" />
+                Wishlist {wishlistCount > 0 && <span className="ml-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{wishlistCount}</span>}
+              </NavLink>
+            )}
 
             {/* Mobile Login / Logout */}
             {user ? (
