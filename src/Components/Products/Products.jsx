@@ -147,8 +147,14 @@ const Products = () => {
             <p className="text-center text-muted-foreground text-lg">No products found matching your criteria.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-10">
-              {products.map((pd) => (
-                <Product key={pd._id} pdt={pd} />
+              {products.map((pd, index) => (
+                <div 
+                  key={pd._id} 
+                  className="opacity-0 animate-slide-up-fade-in" 
+                  style={{ animationDelay: `${0.1 * index}s` }}
+                >
+                  <Product pdt={pd} />
+                </div>
               ))}
             </div>
           )}
