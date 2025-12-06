@@ -6,8 +6,12 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  signInWithPopup, // NEW: For social logins
+  GoogleAuthProvider, // NEW: Google Auth Provider
+  GithubAuthProvider // NEW: GitHub Auth Provider
 } from "firebase/auth";
+import { getFirestore } from "firebase/firestore"; // Keep Firestore if you're using it
 
 const firebaseConfig = {
   apiKey: "AIzaSyCj22RruYIAmIUucWEh_TKgIuffAf8PEQw",
@@ -20,6 +24,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app); // Export Firestore if needed
+
+// Instantiate social providers
+export const googleProvider = new GoogleAuthProvider(); // NEW
+export const githubProvider = new GithubAuthProvider(); // NEW
 
 // Export Firebase Auth functions for use in AuthContext
 export { 
@@ -27,5 +36,6 @@ export {
   createUserWithEmailAndPassword, 
   updateProfile, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  signInWithPopup // NEW: Export signInWithPopup
 };

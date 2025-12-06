@@ -5,8 +5,11 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile, 
   signOut, 
-  onAuthStateChanged 
-} from "../firebase/firebase.int"; // Import Firebase auth functions
+  onAuthStateChanged,
+  signInWithPopup, // NEW
+  googleProvider, // NEW
+  githubProvider // NEW
+} from "../firebase/firebase.int"; // Import Firebase auth functions and providers
 
 const AuthContext = createContext();
 
@@ -131,6 +134,53 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // NEW: Social Login Functions
+  const signInWithGoogle = async () => {
+    try {
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      const firebaseUserData = userCredential.user;
+      const backendSyncResult = await syncUserWithBackend(firebaseUserData);
+      if (backendSyncResult.success) {
+        return { success: true };
+      } else {
+        await signOut(auth);
+        return { success: false, message: backendSyncResult.message };
+      }
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+      let errorMessage = "Google sign-in failed.";
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = "Google sign-in window closed.";
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        errorMessage = "Google sign-in already in progress.";
+      }
+      return { success: false, message: errorMessage };
+    }
+  };
+
+  const signInWithGitHub = async () => {
+    try {
+      const userCredential = await signInWithPopup(auth, githubProvider);
+      const firebaseUserData = userCredential.user;
+      const backendSyncResult = await syncUserWithBackend(firebaseUserData);
+      if (backendSyncResult.success) {
+        return { success: true };
+      } else {
+        await signOut(auth);
+        return { success: false, message: backendSyncResult.message };
+      }
+    } catch (error) {
+      console.error("GitHub Sign-In error:", error);
+      let errorMessage = "GitHub sign-in failed.";
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = "GitHub sign-in window closed.";
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        errorMessage = "GitHub sign-in already in progress.";
+      }
+      return { success: false, message: errorMessage };
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -187,7 +237,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, firebaseUser, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, login, register, logout, updateUser, signInWithGoogle, signInWithGitHub }}>
       {!loading && children}
     </AuthContext.Provider>
   );

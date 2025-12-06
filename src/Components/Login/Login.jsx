@@ -14,7 +14,7 @@ import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use the login function from AuthContext
+  const { login, signInWithGoogle, signInWithGitHub } = useAuth(); // Use the login, signInWithGoogle, signInWithGitHub functions from AuthContext
 
   // ▶ EMAIL LOGIN
   const handleEmailLogin = async (e) => {
@@ -33,8 +33,27 @@ const Login = () => {
     }
   };
 
-  // Removed Google/GitHub sign-in and password reset as they are Firebase-specific.
-  // These would need to be implemented on the backend if desired.
+  // ▶ GOOGLE LOGIN
+  const handleGoogleLogin = async () => {
+    setError("");
+    const result = await signInWithGoogle();
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.message);
+    }
+  };
+
+  // ▶ GITHUB LOGIN
+  const handleGitHubLogin = async () => {
+    setError("");
+    const result = await signInWithGitHub();
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.message);
+    }
+  };
 
   return (
     <>
@@ -47,7 +66,23 @@ const Login = () => {
 
           {error && <p className="text-red-600 text-center mb-3">{error}</p>}
 
-          {/* Removed Google and GitHub buttons */}
+          {/* Google and GitHub buttons */}
+          <div className="space-y-3 mb-6">
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center py-3 px-4 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition"
+            >
+              <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+              Sign in with Google
+            </button>
+            <button
+              onClick={handleGitHubLogin}
+              className="w-full flex items-center justify-center py-3 px-4 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition"
+            >
+              <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" className="h-5 w-5 mr-2" />
+              Sign in with GitHub
+            </button>
+          </div>
 
           <div className="text-center my-4 text-slate-500">OR</div>
 
@@ -76,8 +111,6 @@ const Login = () => {
               Sign In
             </button>
           </form>
-
-          {/* Removed FORGOT PASSWORD */}
 
           {/* CREATE ACCOUNT */}
           <p className="text-center mt-3">

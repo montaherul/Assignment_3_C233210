@@ -7,7 +7,7 @@ import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { register } = useAuth(); // Use the register function from AuthContext
+  const { register, signInWithGoogle, signInWithGitHub } = useAuth(); // Use the register, signInWithGoogle, signInWithGitHub functions from AuthContext
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -33,6 +33,28 @@ const Register = () => {
     }
   };
 
+  // ▶ GOOGLE REGISTER
+  const handleGoogleRegister = async () => {
+    setError("");
+    const result = await signInWithGoogle();
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.message);
+    }
+  };
+
+  // ▶ GITHUB REGISTER
+  const handleGitHubRegister = async () => {
+    setError("");
+    const result = await signInWithGitHub();
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.message);
+    }
+  };
+
   return (
     <>
       <Navigation />
@@ -44,6 +66,26 @@ const Register = () => {
           </h2>
 
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+          {/* Google and GitHub buttons */}
+          <div className="space-y-3 mb-6">
+            <button
+              onClick={handleGoogleRegister}
+              className="w-full flex items-center justify-center py-3 px-4 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition"
+            >
+              <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" className="h-5 w-5 mr-2" />
+              Sign up with Google
+            </button>
+            <button
+              onClick={handleGitHubRegister}
+              className="w-full flex items-center justify-center py-3 px-4 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition"
+            >
+              <img src="https://www.svgrepo.com/show/512317/github-142.svg" alt="GitHub" className="h-5 w-5 mr-2" />
+              Sign up with GitHub
+            </button>
+          </div>
+
+          <div className="text-center my-4 text-slate-500">OR</div>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <input
