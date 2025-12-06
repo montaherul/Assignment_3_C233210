@@ -22,7 +22,7 @@ const Product = ({ pdt }) => {
   };
 
   return (
-    <div className="group flex flex-col bg-card rounded-xl shadow-sm hover:shadow-lg border border-border transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+    <div className="group flex flex-col bg-card rounded-xl shadow-sm hover:shadow-lg border border-border transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-[480px]"> {/* Added fixed height */}
       {/* Image Container */}
       <div className="relative h-56 w-full bg-secondary p-4 flex items-center justify-center overflow-hidden rounded-t-xl">
         <img

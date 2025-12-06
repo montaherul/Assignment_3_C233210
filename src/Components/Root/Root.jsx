@@ -65,7 +65,7 @@ const Root = () => {
                 <div key={i} className="bg-card rounded-xl shadow-sm border border-border p-6 animate-pulse">
                   <div className="h-48 bg-muted rounded mb-4"></div>
                   <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 mb-4"></div>
                 </div>
               ))}
             </div>
@@ -89,7 +89,7 @@ const Root = () => {
               >
                 <Link 
                   to="/products" 
-                  className="group flex flex-col items-center justify-center h-full bg-card rounded-xl shadow-sm hover:shadow-lg border border-border transition-all duration-300 transform hover:-translate-y-1 p-6 text-center"
+                  className="group flex flex-col items-center justify-center h-[480px] bg-card rounded-xl shadow-sm hover:shadow-lg border border-border transition-all duration-300 transform hover:-translate-y-1 p-6 text-center"
                 >
                   <svg className="w-16 h-16 text-primary group-hover:text-sky-700 transition-colors mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
