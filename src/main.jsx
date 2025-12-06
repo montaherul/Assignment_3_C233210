@@ -19,6 +19,7 @@ import AdminOrders from './Components/Admin/AdminOrders.jsx';
 import CreateProduct from './Components/Admin/CreateProduct.jsx'; // Import CreateProduct
 import Wishlist from './Components/Wishlist/Wishlist.jsx'; // Import Wishlist
 import CartPage from './Components/CartPage/CartPage.jsx'; // NEW: Import CartPage
+import CheckoutPage from './Components/CheckoutPage/CheckoutPage.jsx'; // NEW: Import CheckoutPage
 import { AuthProvider } from './Components/AuthContext/AuthContext.jsx'; // Correct import for AuthProvider
 import { CartProvider } from './Components/CartContext/CartContext.jsx'; // NEW: Import CartProvider
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'; // Import ProtectedRoute
@@ -92,6 +93,10 @@ const router = createBrowserRouter([
   {
     path: "/cart", // NEW: Route for the Cart page
     element: <ProtectedRoute><CartPage /></ProtectedRoute>, // Protect the Cart page
+  },
+  {
+    path: "/checkout", // NEW: Route for the Checkout page
+    element: <ProtectedRoute><CheckoutPage /></ProtectedRoute>, // Protect the Checkout page
   }
 ]);
 

@@ -181,7 +181,6 @@ const CartPage = () => {
                       <span>${(cartTotalPrice + 5.00).toFixed(2)}</span> {/* Add shipping */}
                     </div>
                   </div>
-                  {/* Placeholder for checkout route */}
                   <button
                     onClick={() => navigate('/checkout')}
                     className="w-full mt-6 py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-sky-700 transition-colors"
