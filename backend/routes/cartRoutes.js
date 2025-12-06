@@ -66,6 +66,8 @@ router.post('/', auth, async (req, res) => {
         });
       }
       await cart.save();
+      // Re-populate the cart before sending it back
+      cart = await cart.populate('items.productId', 'title price image stock');
       res.json(cart);
     } else {
       // No cart for user, create new cart
@@ -80,7 +82,9 @@ router.post('/', auth, async (req, res) => {
         }],
       });
       await newCart.save();
-      res.status(201).json(newCart);
+      // Populate the new cart before sending it back
+      const populatedNewCart = await newCart.populate('items.productId', 'title price image stock');
+      res.status(201).json(populatedNewCart);
     }
   } catch (err) {
     console.error('Error adding/updating cart item:', err.message);
@@ -116,6 +120,9 @@ router.put('/:productId', auth, async (req, res) => {
 
       cart.items[itemIndex].quantity = quantity;
       await cart.save();
+
+      // IMPORTANT: Re-populate the cart before sending it back
+      cart = await cart.populate('items.productId', 'title price image stock');
       res.json(cart);
     } else {
       return res.status(404).json({ message: 'Item not found in cart.' });
@@ -142,6 +149,8 @@ router.delete('/:productId', auth, async (req, res) => {
 
     cart.items = cart.items.filter(item => item.productId.toString() !== productId);
     await cart.save();
+    // Re-populate the cart before sending it back
+    cart = await cart.populate('items.productId', 'title price image stock');
     res.json(cart);
   } catch (err) {
     console.error('Error removing cart item:', err.message);
@@ -164,6 +173,8 @@ router.delete('/clear', auth, async (req, res) => {
 
     cart.items = []; // Clear all items
     await cart.save();
+    // Re-populate the cart (even if empty, to maintain structure)
+    cart = await cart.populate('items.productId', 'title price image stock');
     res.json({ message: 'Cart cleared successfully.', cart });
   } catch (err) {
     console.error('Error clearing cart:', err.message);
