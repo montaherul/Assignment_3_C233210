@@ -55,6 +55,10 @@ const AdminOrders = () => {
             name: data.productTitle || "Unknown",
             qty: 1,
             price: Number(data.price) || 0,
+            image: data.productImage || "",
+            productId: data.productId || "",
+            productTitle: data.productTitle || "",
+            productImage: data.productImage || "",
           },
         ];
 
@@ -63,6 +67,7 @@ const AdminOrders = () => {
           id: data.orderId,
           customerName: data.customerName,
           email: data.email,
+          phone: data.phone,
           date,
           status: data.status || "Pending",
           address: data.address,
@@ -217,6 +222,7 @@ const AdminOrders = () => {
                     <p className="text-sm font-bold text-slate-800">
                       {order.customerName || "Unknown User"}
                     </p>
+                    <p>{order.phone || "No phone provided"}</p>
                     <p className="text-xs text-slate-500">{order.email}</p>
                   </div>
                 </div>
