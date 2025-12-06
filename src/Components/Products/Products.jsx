@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useLoaderData, useSearchParams, useNavigate } from "react-router-dom"; // Standardized to react-router-dom
+import { useLoaderData, useSearchParams, useNavigate } from "react-router-dom";
 import Product from "../Product/Product";
 import Navigation from "../Navigation/Navigation";
 import Footer from "../../Footer/Footer";
 
 const Products = () => {
-  const initialProducts = useLoaderData(); // Products from the initial loader call
+  // useLoaderData will provide initial data if no search params are in the URL
+  // or filtered data if search params are present when the route is first loaded.
+  const loaderProducts = useLoaderData(); 
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
-  const [products, setProducts] = useState(initialProducts);
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]); // Initialize as empty, let useEffect populate
+  const [loading, setLoading] = useState(true); // Set to true initially as we'll always fetch
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
 
@@ -22,7 +24,7 @@ const Products = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/products`); // Fetch all products to get categories
+        const response = await fetch(`${API_BASE_URL}/products`); 
         const allProducts = await response.json();
         const uniqueCategories = ['All', ...new Set(allProducts.map(p => p.category))];
         setCategories(uniqueCategories);
@@ -33,9 +35,9 @@ const Products = () => {
     fetchCategories();
   }, []);
 
-  // Effect to re-fetch products when search params change
+  // Effect to fetch products based on current searchTerm and selectedCategory
   useEffect(() => {
-    const fetchFilteredProducts = async () => {
+    const fetchProductsWithFilters = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -58,32 +60,29 @@ const Products = () => {
       }
     };
 
-    // Only fetch if search term or category has changed from initial load or previous state
-    // This prevents unnecessary re-fetches on initial render if loader already provided data
-    if (searchTerm !== (searchParams.get('search') || '') || selectedCategory !== (searchParams.get('category') || 'All')) {
-      fetchFilteredProducts();
-    } else if (initialProducts) {
-      setProducts(initialProducts); // Use initial loader data if no filters applied
-      setLoading(false);
-    }
-  }, [searchTerm, selectedCategory, searchParams, initialProducts]);
+    fetchProductsWithFilters(); // Always fetch when searchTerm or selectedCategory changes
 
+  }, [searchTerm, selectedCategory]); // Dependencies are the state variables that control the filters
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    updateSearchParams(e.target.value, selectedCategory);
-  };
-
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-    updateSearchParams(searchTerm, e.target.value);
-  };
-
+  // Update URL search params when input/select changes
   const updateSearchParams = (newSearchTerm, newCategory) => {
     const newParams = new URLSearchParams();
     if (newSearchTerm) newParams.set('search', newSearchTerm);
     if (newCategory && newCategory !== 'All') newParams.set('category', newCategory);
-    navigate(`?${newParams.toString()}`, { replace: true }); // Use navigate to update URL without full page reload
+    // Using setSearchParams directly will update the URL and trigger the useEffect via searchParams dependency
+    setSearchParams(newParams, { replace: true }); 
+  };
+
+  const handleSearchChange = (e) => {
+    const newSearch = e.target.value;
+    setSearchTerm(newSearch);
+    updateSearchParams(newSearch, selectedCategory);
+  };
+
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+    updateSearchParams(searchTerm, newCategory);
   };
 
   return (

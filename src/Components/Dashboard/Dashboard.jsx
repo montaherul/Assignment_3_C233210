@@ -155,7 +155,8 @@ const Dashboard = () => {
                     Admin Panel
                   </button>
                   <button
-                    onClick={() => navigate("/admin/users")} {/* NEW: Manage Users button */}
+                    onClick={() => navigate("/admin/users")} 
+                  
                     className="px-5 py-2 bg-secondary text-secondary-foreground rounded-lg shadow-sm hover:bg-muted transition-colors text-sm font-medium"
                   >
                     Manage Users

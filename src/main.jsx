@@ -42,7 +42,21 @@ const router = createBrowserRouter([
   },
   {
     path: "/products",
-    loader: () => fetch("http://localhost:5000/api/products"), // Use new backend API
+    loader: async ({ request }) => { // Access request object to get URL search params
+      const url = new URL(request.url);
+      const search = url.searchParams.get('search');
+      const category = url.searchParams.get('category');
+
+      const query = new URLSearchParams();
+      if (search) query.append('search', search);
+      if (category && category !== 'All') query.append('category', category);
+
+      const response = await fetch(`http://localhost:5000/api/products?${query.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products from loader.');
+      }
+      return response.json();
+    },
     Component: Products,
   },
   {
