@@ -17,7 +17,8 @@ const Order = () => {
 
   // Form States
   const [customerName, setCustomerName] = useState("");
-  const [address, setAddress] = useState("");
+  const [physicalAddress, setPhysicalAddress] = useState(""); // New state for physical address
+  const [mapEmbedLink, setMapEmbedLink] = useState(""); // Renamed for clarity, stores the embed URL
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery"); // Default payment method
   const [transactionId, setTransactionId] = useState("");
@@ -54,7 +55,8 @@ const Order = () => {
         customerName: customerName,
         email: user.email,
         uid: user.uid,
-        address: address,
+        physicalAddress: physicalAddress, // Save physical address
+        mapEmbedLink: mapEmbedLink, // Save map embed link
         phone: phone,
         paymentMethod: paymentMethod,
         transactionId: paymentMethod !== "Cash on Delivery" ? transactionId : null,
@@ -166,45 +168,66 @@ const Order = () => {
                     />
                   </div>
 
-                  {/* Address & Contact Grid */}
+                  {/* Address Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label
-                        htmlFor="address"
+                        htmlFor="physicalAddress"
                         className="block text-sm font-medium text-slate-700 mb-1"
                       >
-                        Address (Google Maps Embed Link)
+                        Physical Address
+                      </label>
+                      <input
+                        type="text"
+                        id="physicalAddress"
+                        placeholder="e.g., 123 Main St, City, Country"
+                        required
+                        value={physicalAddress}
+                        onChange={(e) => setPhysicalAddress(e.target.value)}
+                        className="block w-full rounded-lg border-slate-300 border px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition shadow-sm outline-none"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">
+                        Street, city, state/province, postal code.
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="mapEmbedLink"
+                        className="block text-sm font-medium text-slate-700 mb-1"
+                      >
+                        Google Maps Embed Link (Optional)
                       </label>
                       <input
                         type="url"
-                        id="address"
+                        id="mapEmbedLink"
                         placeholder="e.g., https://www.google.com/maps/embed?pb=..."
-                        required
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        value={mapEmbedLink}
+                        onChange={(e) => setMapEmbedLink(e.target.value)}
                         className="block w-full rounded-lg border-slate-300 border px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition shadow-sm outline-none"
                       />
                       <p className="mt-1 text-xs text-slate-500">
                         Find this by clicking "Share" then "Embed a map" on Google Maps.
                       </p>
                     </div>
-                    <div>
-                      <label
-                        htmlFor="contact"
-                        className="block text-sm font-medium text-slate-700 mb-1"
-                      >
-                        Contact Number
-                      </label>
-                      <input
-                        type="text"
-                        id="contact"
-                        placeholder="+1 (555) 000-0000"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="block w-full rounded-lg border-slate-300 border px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition shadow-sm outline-none"
-                      />
-                    </div>
+                  </div>
+
+                  {/* Contact Number */}
+                  <div>
+                    <label
+                      htmlFor="contact"
+                      className="block text-sm font-medium text-slate-700 mb-1"
+                    >
+                      Contact Number
+                    </label>
+                    <input
+                      type="text"
+                      id="contact"
+                      placeholder="+1 (555) 000-0000"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="block w-full rounded-lg border-slate-300 border px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition shadow-sm outline-none"
+                    />
                   </div>
 
                   {/* Payment Method Selection */}

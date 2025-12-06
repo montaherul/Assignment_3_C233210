@@ -73,7 +73,8 @@ const AdminOrders = () => {
           phone: data.phone,
           date,
           status: data.status || "Pending",
-          address: data.address,
+          physicalAddress: data.physicalAddress || "", // Retrieve physical address
+          mapEmbedLink: data.mapEmbedLink || "", // Retrieve map embed link
           total: Number(data.price) || 0,
           items,
           paymentMethod: data.paymentMethod || "N/A",
@@ -115,14 +116,16 @@ const AdminOrders = () => {
     }
   };
 
-  const handleAddressClick = (address) => {
-    if (address && address.startsWith("https://www.google.com/maps/embed?")) {
-      setCurrentMapUrl(address);
+  const handleAddressClick = (order) => {
+    // Prioritize mapEmbedLink for modal
+    if (order.mapEmbedLink && order.mapEmbedLink.startsWith("https://www.google.com/maps/embed?")) {
+      setCurrentMapUrl(order.mapEmbedLink);
       setShowMapModal(true);
-    } else if (address && address.startsWith("http")) {
-      window.open(address, "_blank");
-    } else if (address) {
-      window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, "_blank");
+    } else if (order.physicalAddress) {
+      // If no embed link, or it's not valid, use physical address for search
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(order.physicalAddress)}`, "_blank");
+    } else {
+      alert("No address or map link provided for this order.");
     }
   };
 
@@ -262,32 +265,43 @@ const AdminOrders = () => {
                   {(order.paymentMethod === "bKash" || order.paymentMethod === "Nagad") && (
                     <>
                       <p className="text-sm text-foreground">
-                        Txn ID: <span className="font-semibold">{order.transactionId}</span>
+                        Txn ID: <span className="font-semibold">{order.transactionId || "N/A"}</span>
                       </p>
                       <p className="text-sm text-foreground">
-                        Sender: <span className="font-semibold">{order.senderNumber}</span>
+                        Sender: <span className="font-semibold">{order.senderNumber || "N/A"}</span>
                       </p>
                     </>
                   )}
                 </div>
 
-                {/* Clickable Address/Map Link */}
-                {order.address ? (
-                  <button
-                    onClick={() => handleAddressClick(order.address)}
-                    className="text-xs text-primary hover:underline bg-background/50 p-2 rounded border border-border flex items-center gap-1"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {order.address.startsWith("https://www.google.com/maps/embed?") ? "View Map Location (Modal)" : "View Map Location (New Tab)"}
-                  </button>
-                ) : (
-                  <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border border-border">
-                    📍 No address provided
-                  </div>
-                )}
+                {/* Address Display and Map Link */}
+                <div className="border-t border-border pt-3 mt-3">
+                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">
+                    Delivery Address
+                  </p>
+                  {order.physicalAddress ? (
+                    <p className="text-sm text-foreground mb-2">{order.physicalAddress}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mb-2">No physical address provided.</p>
+                  )}
+
+                  {(order.mapEmbedLink || order.physicalAddress) ? (
+                    <button
+                      onClick={() => handleAddressClick(order)}
+                      className="text-xs text-primary hover:underline bg-background/50 p-2 rounded border border-border flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {order.mapEmbedLink && order.mapEmbedLink.startsWith("https://www.google.com/maps/embed?") ? "View Map Location (Modal)" : "Search Address (New Tab)"}
+                    </button>
+                  ) : (
+                    <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border border-border">
+                      📍 No map or address link provided
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Footer */}
