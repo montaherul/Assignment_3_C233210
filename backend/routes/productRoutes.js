@@ -5,19 +5,27 @@ const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 
 // @route   GET /api/products
-// @desc    Get all products, with optional category filter
+// @desc    Get all products, with optional category and search filters
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const { category } = req.query; // Get category from query parameters
+    const { category, search } = req.query; // Get category and search from query parameters
     let query = {};
 
-    if (category) {
-      query.category = category; // Add category filter to query
+    if (category && category !== 'All') { // Add category filter if provided and not 'All'
+      query.category = category;
+    }
+
+    if (search) {
+      // Use a regular expression for case-insensitive search on title and description
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
     }
 
     const products = await Product.find(query);
-    console.log(`Fetched ${products.length} products from DB.`); // Added console log
+    console.log(`Fetched ${products.length} products from DB with filters.`); // Added console log
     res.json(products);
   } catch (err) {
     console.error(err.message);
