@@ -51,6 +51,7 @@ const Dashboard = () => {
   // 3. LOGOUT FUNCTION
   const handleLogout = () => {
     logout(); // Call logout from AuthContext
+    navigate('/login'); // Navigate after logout
   };
 
   // Placeholder for cancelOrder function (will need backend API)

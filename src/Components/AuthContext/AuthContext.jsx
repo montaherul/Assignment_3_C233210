@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// Removed useNavigate as it should be used within a Router context
 
 const AuthContext = createContext();
 
@@ -8,7 +8,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  // Removed const navigate = useNavigate();
 
   const API_BASE_URL = "http://localhost:5000/api/auth"; // Your backend auth API base URL
 
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
     setLoading(false);
-  }, []);
+  }, []); // Removed navigate from dependency array
 
   const login = async (email, password) => {
     try {
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    navigate('/login');
+    // Removed navigate('/login'); - navigation will be handled by components calling logout
   };
 
   // Provide a way to update user details from other components (e.g., EditProfile)

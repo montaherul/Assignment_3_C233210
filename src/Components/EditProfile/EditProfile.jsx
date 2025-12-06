@@ -66,6 +66,7 @@ const EditProfile = () => {
   // LOGOUT FUNCTION
   const handleLogout = () => {
     logout(); // Call logout from AuthContext
+    navigate('/login'); // Navigate after logout
   };
 
   // Loading State for AuthContext

@@ -10,6 +10,7 @@ const Navigation = () => {
   const handleLogout = () => {
     logout(); // Call logout from AuthContext
     setIsOpen(false); // Close mobile menu if open
+    navigate('/login'); // Navigate after logout
   };
 
   const navLinks = [
