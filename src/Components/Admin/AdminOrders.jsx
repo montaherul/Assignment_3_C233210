@@ -129,10 +129,10 @@ const AdminOrders = () => {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center">
-            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-500">Verifying Admin Access...</p>
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Verifying Admin Access...</p>
           </div>
         </div>
       </>
@@ -144,8 +144,8 @@ const AdminOrders = () => {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
-          <p className="text-red-500 font-bold">{error}</p>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <p className="text-destructive font-bold">{error}</p>
         </div>
       </>
     );
@@ -155,15 +155,15 @@ const AdminOrders = () => {
   return (
     <>
       <Navigation />
-      <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
-        <div className="max-w-6xl mx-auto mb-8 flex justify-between items-center">
+      <div className="min-h-screen bg-background p-6 sm:p-10">
+        <div className="max-w-6xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">
+            <h1 className="text-3xl font-bold text-foreground">
               Admin Dashboard
             </h1>
-            <p className="text-slate-500">Welcome back, Admin.</p>
+            <p className="text-muted-foreground">Manage customer orders.</p>
           </div>
-          <div className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold">
+          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm shadow-sm">
             {orders.length} Orders
           </div>
         </div>
@@ -172,15 +172,15 @@ const AdminOrders = () => {
           {orders.map((order) => (
             <div
               key={order.docId}
-              className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"
+              className="bg-card rounded-xl shadow-sm border border-border overflow-hidden flex flex-col"
             >
               {/* Header */}
-              <div className="p-5 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+              <div className="p-5 border-b border-border flex justify-between items-start bg-background/50">
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase">
+                  <p className="text-xs font-bold text-muted-foreground uppercase">
                     Order ID
                   </p>
-                  <p className="text-sm font-mono font-semibold text-slate-700">
+                  <p className="text-sm font-mono font-semibold text-foreground">
                     {order.id}
                   </p>
                 </div>
@@ -195,7 +195,7 @@ const AdminOrders = () => {
                     disabled={updatingId === order.docId}
                     className={`appearance-none px-2.5 py-1 rounded-full text-xs font-bold border cursor-pointer ${getStatusColor(
                       order.status
-                    )}`}
+                    )} focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>
@@ -205,8 +205,8 @@ const AdminOrders = () => {
                   </select>
 
                   {updatingId === order.docId && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-full">
-                      <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-card bg-opacity-70 rounded-full">
+                      <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   )}
                 </div>
@@ -215,30 +215,30 @@ const AdminOrders = () => {
               {/* Customer */}
               <div className="p-5 space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
                     {order.customerName?.charAt(0) || "U"}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-800">
+                    <p className="text-sm font-bold text-foreground">
                       {order.customerName || "Unknown User"}
                     </p>
-                    <p>{order.phone || "No phone provided"}</p>
-                    <p className="text-xs text-slate-500">{order.email}</p>
+                    <p className="text-xs text-muted-foreground">{order.phone || "No phone provided"}</p>
+                    <p className="text-xs text-muted-foreground">{order.email}</p>
                   </div>
                 </div>
 
-                <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">
+                <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border border-border">
                   📍 {order.address || "No address provided"}
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="mt-auto bg-slate-50 p-5 border-t border-slate-100 flex justify-between items-center">
-                <div className="text-xs text-slate-400">
+              <div className="mt-auto bg-background/50 p-5 border-t border-border flex justify-between items-center">
+                <div className="text-xs text-muted-foreground">
                   {new Date(order.date).toLocaleDateString()}
                 </div>
 
-                <div className="text-lg font-bold text-slate-800">
+                <div className="text-lg font-bold text-primary">
                   ${order.total.toFixed(2)}
                 </div>
               </div>
