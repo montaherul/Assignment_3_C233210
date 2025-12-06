@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const redis = require('redis');
+// const redis = require('redis'); // Commented out Redis import
 const fs = require('fs'); // Import file system module
 const path = require('path'); // Import path module
 const Product = require('./models/Product'); // Import Product model
@@ -20,12 +20,12 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // --- Redis Client (for future use) ---
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+// const redisClient = redis.createClient({ // Commented out Redis client initialization
+//   url: process.env.REDIS_URL || 'redis://localhost:6379'
+// });
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-redisClient.connect().then(() => console.log('Redis connected successfully')).catch(err => console.error('Redis connection error:', err));
+// redisClient.on('error', (err) => console.error('Redis Client Error', err));
+// redisClient.connect().then(() => console.log('Redis connected successfully')).catch(err => console.error('Redis connection error:', err));
 
 // --- Middleware ---
 app.use(cors({
