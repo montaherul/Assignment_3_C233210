@@ -1,76 +1,100 @@
 import React, { useState, useEffect } from "react";
-import { auth, db } from "../firebase/firebase.int";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
 import Navigation from "../Navigation/Navigation";
-import { doc, updateDoc } from "firebase/firestore";
 import Footer from "../../Footer/Footer";
+import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
+// import { db } from "../firebase/firebase.int"; // Firebase import removed
+// import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore"; // Firebase imports removed
 
 const Dashboard = () => {
-  const ADMIN_EMAIL = "c233210@ugrad.iiuc.ac.bd";
+  const ADMIN_EMAIL = "c233210@ugrad.iiuc.ac.bd"; // This will need to be updated to check user.role === 'admin'
   const navigate = useNavigate();
+  const { user, loading, logout } = useAuth(); // Get user, loading, and logout from AuthContext
 
-  const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(true); // Renamed to avoid conflict with auth loading
 
-  // 1. CHECK LOGIN STATUS
+  // 1. CHECK LOGIN STATUS & REDIRECT IF NOT LOGGED IN
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser) {
-        navigate("/login");
-      } else {
-        setUser(currentUser);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
-
-  const cancelOrder = async (orderId) => {
-    try {
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, {
-        status: "Cancelled", // Changed to 'Cancelled' for consistency
-        canceledAt: new Date(),
-      });
-      alert("Order canceled successfully.");
-    } catch (error) {
-      console.error("Cancel error:", error);
-      alert("Failed to cancel order. Try again.");
+    if (!loading && !user) {
+      navigate("/login");
     }
-  };
+  }, [user, loading, navigate]);
 
-
-  // 2. FETCH ORDERS FOR THIS USER (SAFE QUERY)
+  // 2. FETCH ORDERS FOR THIS USER (Placeholder for backend API)
   useEffect(() => {
     if (!user) return;
 
-    const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, where("uid", "==", user.uid));
+    // --- Placeholder for fetching orders from your new backend API ---
+    // This part will be implemented once we set up the backend API for orders.
+    // For now, we'll simulate loading and then show no orders.
+    setOrdersLoading(true);
+    const fetchUserOrders = async () => {
+      // In a real scenario, you'd make an API call here:
+      // const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}`, {
+      //   headers: {
+      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
+      //   }
+      // });
+      // const data = await response.json();
+      // setOrders(data);
+      setTimeout(() => { // Simulate API call
+        setOrders([]); // No orders for now, as Firebase is removed
+        setOrdersLoading(false);
+      }, 1000);
+    };
+    fetchUserOrders();
+    // --- End Placeholder ---
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const ordersList = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .sort((a, b) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
-          return timeB - timeA; // newest first
-        });
-
-      setOrders(ordersList);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
   }, [user]);
 
   // 3. LOGOUT FUNCTION
-  const handleLogout = async () => {
-    await signOut(auth);
-    navigate("/login");
+  const handleLogout = () => {
+    logout(); // Call logout from AuthContext
   };
+
+  // Placeholder for cancelOrder function (will need backend API)
+  const cancelOrder = async (orderId) => {
+    alert("Order cancellation is not yet implemented with the new backend.");
+    // try {
+    //   // API call to backend to cancel order
+    //   // const response = await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+    //   //   method: 'PUT',
+    //   //   headers: {
+    //   //     'Content-Type': 'application/json',
+    //   //     'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //   //   }
+    //   // });
+    //   // if (response.ok) {
+    //   //   alert("Order canceled successfully.");
+    //   //   // Re-fetch orders or update state
+    //   // } else {
+    //   //   const errorData = await response.json();
+    //   //   alert(`Failed to cancel order: ${errorData.message}`);
+    //   // }
+    // } catch (error) {
+    //   console.error("Cancel error:", error);
+    //   alert("Failed to cancel order. Try again.");
+    // }
+  };
+
+
+  // Show loading state for auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not loading and no user, it means navigate("/login") has been called.
+  // We can return null or a simple message here, as the redirect will handle it.
+  if (!user) return null;
+
 
   return (
     <>
@@ -81,13 +105,13 @@ const Dashboard = () => {
           {/* User Profile Section */}
           <div className="bg-card p-6 rounded-xl shadow-sm mb-8 border border-border text-center">
             <img
-              src={user?.photoURL || `https://ui-avatars.com/api/?name=${user?.displayName || 'User'}&background=0EA5E9&color=fff`}
+              src={user?.photoURL || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=0EA5E9&color=fff`}
               alt="User Avatar"
               className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-primary/20 object-cover"
             />
 
             <h2 className="text-2xl font-bold text-foreground mb-1">
-              Welcome, {user?.displayName || "User"} 👋
+              Welcome, {user?.name || "User"} 👋
             </h2>
 
             <p className="text-muted-foreground text-sm">{user?.email}</p>
@@ -99,7 +123,7 @@ const Dashboard = () => {
               >
                 Logout
               </button>
-              {user?.email === ADMIN_EMAIL && (
+              {user?.email === ADMIN_EMAIL && ( // This check needs to be updated to user.role === 'admin'
                 <button
                   onClick={() => navigate("/admin/orders")}
                   className="px-5 py-2 bg-primary text-primary-foreground rounded-lg shadow-sm hover:bg-sky-700 transition-colors text-sm font-medium"
@@ -119,7 +143,7 @@ const Dashboard = () => {
               Your Orders ({orders.length})
             </h3>
 
-            {loading ? (
+            {ordersLoading ? (
               <p className="text-muted-foreground text-center py-8">Loading orders...</p>
             ) : orders.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No orders found. Start shopping!</p>

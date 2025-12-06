@@ -28,10 +28,13 @@ app.use(cors({
 }));
 app.use(express.json()); // For parsing application/json
 
-// --- Basic Route ---
+// --- Routes ---
 app.get('/', (req, res) => {
   res.send('myproject Backend API is running!');
 });
+
+// Auth Routes
+app.use('/api/auth', require('./routes/authRoutes'));
 
 // --- Start Server ---
 app.listen(PORT, () => {

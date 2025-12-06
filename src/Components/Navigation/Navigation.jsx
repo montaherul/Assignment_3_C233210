@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { auth } from "../firebase/firebase.int";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth(); // Get user and logout from AuthContext
   const navigate = useNavigate();
 
-  // Listen for login/logout state
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // logged in user OR null
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const logout = () => {
-    signOut(auth).then(() => navigate("/login"));
+  const handleLogout = () => {
+    logout(); // Call logout from AuthContext
+    setIsOpen(false); // Close mobile menu if open
   };
 
   const navLinks = [
@@ -61,23 +53,24 @@ const Navigation = () => {
               <div className="flex items-center gap-3">
                 {/* Profile picture or initial */}
                 
-                  {user.photoURL ? (
-                    <NavLink to="/dashboard">
-                    <img
-                      src={user.photoURL}
-                      className="w-8 h-8 rounded-full border border-border"
-                      referrerPolicy="no-referrer"
-                    />
-                    </NavLink>
-                  ) : (
-                    <div className="w-8 h-8 bg-secondary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                      {user.displayName?.charAt(0) || "U"}
-                    </div>
-                  )}
+                  <NavLink to="/dashboard">
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        className="w-8 h-8 rounded-full border border-border"
+                        referrerPolicy="no-referrer"
+                        alt="User Avatar"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-secondary text-primary-foreground rounded-full flex items-center justify-center font-bold">
+                        {user.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                    )}
+                  </NavLink>
                 
 
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-lg hover:bg-red-700 transition"
                 >
                   Logout
@@ -130,10 +123,7 @@ const Navigation = () => {
             {/* Mobile Login / Logout */}
             {user ? (
               <button
-                onClick={() => {
-                  logout();
-                  setIsOpen(false);
-                }}
+                onClick={handleLogout}
                 className="block w-full text-center px-5 py-3 rounded-md mt-3 bg-destructive text-destructive-foreground font-medium"
               >
                 Logout

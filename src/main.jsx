@@ -16,7 +16,8 @@ import Dashboard from './Components/Dashboard/Dashboard.jsx';
 import Register from './Components/Register/Register.jsx';
 import EditProfile from './Components/EditProfile/EditProfile.jsx';
 import AdminOrders from './Components/Admin/AdminOrders.jsx';
-
+import { AuthProvider } from './Components/AuthContext/AuthContext.jsx'; // Correct import for AuthProvider
+import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'; // Import ProtectedRoute
 
 const router = createBrowserRouter([
   {
@@ -54,7 +55,7 @@ const router = createBrowserRouter([
     loader: ({ params }) => {
       return fetch(`https://fakestoreapi.com/products/${params.id}`);
     },
-    Component: Order,
+    element: <ProtectedRoute><Order /></ProtectedRoute>, // Protect the Order route
   },
   {
     path: "/Login",
@@ -62,23 +63,26 @@ const router = createBrowserRouter([
   },
   {
     path: "/Dashboard",
-    Component: Dashboard,},
-    {
-      path: "/register",
-      Component: Register,
-    },
-    {
-      path: "/editprofile",
-      Component: EditProfile,
-    },
-    {
-      path:"/admin/Orders",
-      Component: AdminOrders,
-    }
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>, // Protect the Dashboard route
+  },
+  {
+    path: "/register",
+    Component: Register,
+  },
+  {
+    path: "/editprofile",
+    element: <ProtectedRoute><EditProfile /></ProtectedRoute>, // Protect the EditProfile route
+  },
+  {
+    path:"/admin/Orders",
+    element: <ProtectedRoute><AdminOrders /></ProtectedRoute>, // Protect the AdminOrders route
+  }
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router}>,</RouterProvider>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>
 );

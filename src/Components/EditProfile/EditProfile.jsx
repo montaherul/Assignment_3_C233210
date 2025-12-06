@@ -1,57 +1,75 @@
 import React, { useEffect, useState } from "react";
-import { onAuthStateChanged, signOut, updateProfile } from "firebase/auth";
-import { auth } from "../firebase/firebase.int";
 import { useNavigate } from "react-router-dom";
 import Navigation from "../Navigation/Navigation";
 import Footer from "../../Footer/Footer";
+import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user, loading, logout, updateUser } = useAuth(); // Get user, loading, logout, updateUser from AuthContext
 
   // Editable form fields
   const [name, setName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser) {
-        navigate("/login");
-        return;
-      }
-
-      setUser(currentUser);
-      setName(currentUser.displayName || "");
-      setPhotoURL(currentUser.photoURL || "");
-      setPhoneNumber(currentUser.phoneNumber || "");
-    });
-
-    return () => unsub();
-  }, [navigate]);
+    if (!loading && !user) {
+      navigate("/login");
+      return;
+    }
+    if (user) {
+      setName(user.name || "");
+      setPhotoURL(user.photoURL || "");
+      setPhoneNumber(user.phoneNumber || "");
+    }
+  }, [user, loading, navigate]);
 
   // SAVE PROFILE
   const saveProfile = async () => {
+    setIsSaving(true);
     try {
-      await updateProfile(auth.currentUser, {
-        displayName: name,
-        photoURL: photoURL,
-      });
+      // --- Placeholder for updating profile via backend API ---
+      // In a real scenario, you'd make an API call here:
+      // const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
+      //   },
+      //   body: JSON.stringify({ name, photoURL, phoneNumber })
+      // });
+      // if (response.ok) {
+      //   const updatedUser = await response.json();
+      //   updateUser(updatedUser); // Update AuthContext state
+      //   alert("Profile Updated Successfully!");
+      // } else {
+      //   const errorData = await response.json();
+      //   alert(`Error updating profile: ${errorData.message}`);
+      // }
+      
+      // Simulate API call
+      setTimeout(() => {
+        updateUser({ name, photoURL, phoneNumber }); // Update local AuthContext state
+        alert("Profile Updated Successfully! (Backend integration pending)");
+        setIsSaving(false);
+      }, 1000);
 
-      alert("Profile Updated Successfully!");
     } catch (error) {
       console.error(error);
       alert("Error updating profile");
+      setIsSaving(false);
     }
   };
 
   // LOGOUT FUNCTION
-  const logout = () => {
-    signOut(auth).then(() => navigate("/login"));
+  const handleLogout = () => {
+    logout(); // Call logout from AuthContext
   };
 
-  // Loading State
-  if (!user)
+  // Loading State for AuthContext
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="animate-pulse flex flex-col items-center">
@@ -60,6 +78,9 @@ const EditProfile = () => {
         </div>
       </div>
     );
+
+  // If not loading and no user, it means navigate("/login") has been called.
+  if (!user) return null;
 
   return (
     <>
@@ -183,7 +204,7 @@ const EditProfile = () => {
             <div className="pt-6 flex flex-col-reverse sm:flex-row sm:justify-between gap-4 border-t border-slate-100 mt-2">
               {/* Logout - Visual separation */}
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-sm text-red-500 hover:text-red-700 font-medium px-4 py-2 transition text-center sm:text-left"
               >
                 Sign out of account
@@ -199,9 +220,10 @@ const EditProfile = () => {
 
                 <button
                   onClick={saveProfile}
-                  className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-100 transition shadow-sm"
+                  disabled={isSaving}
+                  className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-100 transition shadow-sm disabled:bg-indigo-400 disabled:cursor-not-allowed"
                 >
-                  Save Changes
+                  {isSaving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </div>

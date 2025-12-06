@@ -1,7 +1,6 @@
-
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+// import { GoogleAuthProvider, GithubAuthProvider } from "firebase/auth"; // Removed
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -16,8 +15,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app); // Firestore
-export const githubProvider =  new GithubAuthProvider();
-
-
+export const auth = getAuth(app); // Keep getAuth for potential future use if needed, but it's not used for core auth anymore
+export const db = getFirestore(app); // Firestore is still used for orders for now, but will be replaced
+// export const githubProvider =  new GithubAuthProvider(); // Removed

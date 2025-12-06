@@ -1,30 +1,36 @@
 import { useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
-import { auth } from "../firebase/firebase.int";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navigation from "../Navigation/Navigation";
 import Footer from "../../Footer/Footer";
+import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 
 const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { register } = useAuth(); // Use the register function from AuthContext
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
+
     const email = e.target.email.value;
     const password = e.target.password.value;
+    const name = e.target.name.value; // Assuming you add a name field
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(async (result) => {
-        await sendEmailVerification(result.user);
-        alert("Verification email sent! Please verify before logging in.");
-        navigate("/login");
-      })
-      .catch((err) => setError(err.message));
+    // Basic password validation (can be enhanced)
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    const result = await register(email, password, name);
+
+    if (result.success) {
+      alert("Registration successful! You are now logged in.");
+      navigate("/dashboard"); // Redirect to dashboard after successful registration and login
+    } else {
+      setError(result.message);
+    }
   };
 
   return (
@@ -37,9 +43,16 @@ const Register = () => {
             Create an Account
           </h2>
 
-          {error && <p className="text-red-500 text-center">{error}</p>}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
           <form onSubmit={handleRegister} className="space-y-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              required
+              className="w-full p-3 border rounded-lg"
+            />
             <input
               type="email"
               name="email"
@@ -66,10 +79,9 @@ const Register = () => {
 
           <p className="text-center text-sm mt-4">
             Already have an account?{" "}
-        
             <Link to="/login" className="text-indigo-600" >
               Login
-              </Link>
+            </Link>
           </p>
         </div>
       </div>
