@@ -143,7 +143,7 @@ const AdminUsers = () => {
     <>
       <Navigation />
       <div className="min-h-screen bg-background p-6 sm:p-10">
-        <div className="max-w-7xl mx-auto mb-8 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-foreground">User Management</h1>
             <p className="text-muted-foreground">View and manage all registered users.</p>
@@ -218,7 +218,7 @@ const AdminUsers = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex flex-col sm:flex-row justify-end gap-2"> {/* Adjusted for mobile */}
                         {/* Role Change */}
                         <select
                           value={u.role}

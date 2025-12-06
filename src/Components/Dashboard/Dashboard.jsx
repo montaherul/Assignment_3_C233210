@@ -139,7 +139,7 @@ const Dashboard = () => {
 
             <p className="text-muted-foreground text-sm">{user?.email}</p>
 
-            <div className="mt-6 flex justify-center gap-3">
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3"> {/* Adjusted for mobile */}
               <button
                 onClick={handleLogout}
                 className="px-5 py-2 bg-destructive text-destructive-foreground rounded-lg shadow-sm hover:bg-red-600 transition-colors text-sm font-medium"
@@ -222,7 +222,7 @@ const Dashboard = () => {
 
                     <div className="text-left sm:text-right w-full sm:w-auto">
                       <p className="text-xl font-bold text-primary">
-                        ${Number(order.price).toFixed(2)}
+                        ${Number(order.totalItemPrice).toFixed(2)} {/* Changed to totalItemPrice */}
                       </p>
 
                       <p className="text-xs text-muted-foreground mt-1">

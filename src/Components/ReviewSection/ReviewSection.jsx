@@ -228,7 +228,7 @@ const ReviewSection = ({ productId }) => {
             ) : (
               reviews.map((review) => (
                 <div key={review._id} className="bg-card rounded-xl shadow-sm border border-border p-6">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2 sm:gap-0"> {/* Adjusted for mobile */}
                     <div className="flex items-center gap-3">
                       {renderAvatar(review.userPhotoURL, review.userName)}
                       <div>
@@ -242,16 +242,16 @@ const ReviewSection = ({ productId }) => {
 
                   {/* Like/Dislike Buttons (UI Only) */}
                   <div className="flex items-center gap-4 text-muted-foreground text-sm mt-4">
-                    <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                    <button className="flex items-center gap-1 hover:text-primary transition-colors p-2 rounded-md hover:bg-secondary"> {/* Added padding and hover */}
                       <ThumbsUp className="w-4 h-4" />
                       <span>0</span> {/* Placeholder for likes */}
                     </button>
-                    <button className="flex items-center gap-1 hover:text-destructive transition-colors">
+                    <button className="flex items-center gap-1 hover:text-destructive transition-colors p-2 rounded-md hover:bg-secondary"> {/* Added padding and hover */}
                       <ThumbsDown className="w-4 h-4" />
                       <span>0</span> {/* Placeholder for dislikes */}
                     </button>
                     {user && (
-                      <button className="ml-auto text-primary hover:underline">Reply</button>
+                      <button className="ml-auto text-primary hover:underline p-2 rounded-md hover:bg-secondary">Reply</button> {/* Added padding and hover */}
                     )}
                   </div>
 

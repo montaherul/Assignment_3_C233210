@@ -165,7 +165,7 @@ const Navigation = () => {
       {/* Mobile Menu Dropdown */}
       {isOpen && (
         <div className="md:hidden bg-card border-t border-border">
-          <div className="px-2 py-3 space-y-1">
+          <div className="px-4 py-3 space-y-1"> {/* Increased horizontal padding */}
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}

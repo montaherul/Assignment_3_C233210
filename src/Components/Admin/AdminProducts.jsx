@@ -135,11 +135,11 @@ const AdminProducts = () => {
             <h1 className="text-3xl font-bold text-foreground">Product Management</h1>
             <p className="text-muted-foreground">Add, edit, and delete products in your store.</p>
           </div>
-          <div className="flex gap-3 items-center">
+          <div className="flex flex-col sm:flex-row gap-3 items-center"> {/* Adjusted for mobile */}
             <Link to="/admin/products/create" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-sm shadow-sm hover:bg-sky-700 transition flex items-center gap-1">
               <PlusCircle className="w-4 h-4" /> Create Product
             </Link>
-            <div className="w-40">
+            <div className="w-full sm:w-40"> {/* Adjusted width for mobile */}
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -215,7 +215,7 @@ const AdminProducts = () => {
                       {product.stock}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex flex-col sm:flex-row justify-end gap-2"> {/* Adjusted for mobile */}
                         <Link
                           to={`/admin/products/edit/${product._id}`}
                           className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
