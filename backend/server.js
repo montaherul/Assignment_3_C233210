@@ -46,6 +46,8 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 // User Routes - NEW!
 app.use('/api/users', require('./routes/userRoutes'));
+// Order Routes - NEW!
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 // --- Product Seeding Function ---
 async function seedProducts() {
