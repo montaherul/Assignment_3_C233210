@@ -9,7 +9,9 @@ const Order = () => {
   const { user, firebaseUser } = useAuth(); // Get user and firebaseUser from AuthContext
 
   const product = useLoaderData();
-  const { _id, title, price, image, description } = product; // Use _id from MongoDB
+  const { _id, title, price, image, description, discountPercentage } = product; // Use _id from MongoDB, get discountPercentage
+
+  const discountedPrice = discountPercentage > 0 ? price * (1 - discountPercentage / 100) : price;
 
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +57,9 @@ const Order = () => {
         productId: _id, // Use MongoDB _id
         productTitle: title,
         productImage: image,
-        price: price,
+        unitPrice: discountedPrice, // NEW: Send discounted unit price
+        orderedQuantity: 1, // NEW: For single product order, quantity is 1
+        totalItemPrice: discountedPrice, // NEW: Total price for this item (unitPrice * quantity)
         customerName: customerName,
         email: user.email,
         userId: user.uid, // Use user.uid (Firebase UID)
@@ -123,7 +127,7 @@ const Order = () => {
                       {title}
                     </h3>
                     <p className="text-2xl font-bold text-indigo-600 mt-1">
-                      ${price}
+                      ${discountedPrice.toFixed(2)}
                     </p>
                   </div>
                   <p className="text-sm text-slate-500 leading-relaxed">
@@ -132,7 +136,7 @@ const Order = () => {
                   <div className="border-t border-slate-100 pt-4">
                     <div className="flex justify-between text-sm font-medium text-slate-900">
                       <span>Total</span>
-                      <span>${price}</span>
+                      <span>${discountedPrice.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -291,7 +295,7 @@ const Order = () => {
                     {(paymentMethod === "bKash" || paymentMethod === "Nagad") && (
                       <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200 text-sm text-indigo-800">
                         <p className="font-semibold mb-2">
-                          Please send ${price} to our {paymentMethod} number:{" "}
+                          Please send ${discountedPrice.toFixed(2)} to our {paymentMethod} number:{" "}
                           <span className="font-bold">01875989022</span>
                         </p>
                         <p className="mb-3">
@@ -350,7 +354,7 @@ const Order = () => {
                     >
                       {loading
                         ? "Processing Order..."
-                        : `Confirm & Pay $${price}`}
+                        : `Confirm & Pay $${discountedPrice.toFixed(2)}`}
                     </button>
                     <p className="mt-4 text-center text-xs text-slate-400">
                       Payments are secure and encrypted.

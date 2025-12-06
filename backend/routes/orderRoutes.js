@@ -13,7 +13,9 @@ router.post('/', auth, async (req, res) => {
     productId,
     productTitle,
     productImage,
-    price,
+    unitPrice, // NEW
+    orderedQuantity, // NEW
+    totalItemPrice, // NEW (replaces 'price')
     customerName,
     physicalAddress,
     mapEmbedLink,
@@ -30,20 +32,21 @@ router.post('/', auth, async (req, res) => {
 
   try {
     // Basic validation
-    if (!productId || !productTitle || !productImage || !price || !customerName || !physicalAddress || !phone || !paymentMethod) {
-      return res.status(400).json({ message: 'Please provide all required order details.' });
+    if (!productId || !productTitle || !productImage || unitPrice === undefined || orderedQuantity === undefined || totalItemPrice === undefined || !customerName || !physicalAddress || !phone || !paymentMethod) {
+      return res.status(400).json({ message: 'Please provide all required order details including unit price, quantity, and total item price.' });
     }
 
-    // Check if product exists and is in stock (optional but good practice)
+    // Check if product exists and is in stock
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
     }
-    if (product.stock <= 0) {
-      return res.status(400).json({ message: 'Product is out of stock.' });
+    if (product.stock < orderedQuantity) { // Check against orderedQuantity
+      return res.status(400).json({ message: `Not enough stock for ${product.title}. Available: ${product.stock}` });
     }
-    // Decrement stock (simple, can be made more robust with transactions)
-    product.stock -= 1;
+    
+    // Decrement stock by the ordered quantity
+    product.stock -= orderedQuantity;
     await product.save();
 
     const newOrder = new Order({
@@ -53,7 +56,9 @@ router.post('/', auth, async (req, res) => {
       productId,
       productTitle,
       productImage,
-      price,
+      unitPrice, // NEW
+      orderedQuantity, // NEW
+      totalItemPrice, // NEW
       physicalAddress,
       mapEmbedLink,
       phone,

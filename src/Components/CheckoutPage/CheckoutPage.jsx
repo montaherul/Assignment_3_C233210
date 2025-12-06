@@ -141,7 +141,9 @@ const CheckoutPage = () => {
           productId: item.productId._id,
           productTitle: item.productTitle,
           productImage: item.productImage,
-          price: finalItemPriceForOrder, // Total price for this item's quantity, with discount applied
+          unitPrice: itemDiscountedPrice, // NEW: Send discounted unit price
+          orderedQuantity: item.quantity, // NEW: Send quantity for this item
+          totalItemPrice: finalItemPriceForOrder, // NEW: Total price for this item's quantity
           customerName: customerName,
           email: user.email,
           userId: user.uid,

@@ -26,7 +26,17 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  price: {
+  unitPrice: { // NEW: Price of a single unit at the time of order
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  orderedQuantity: { // NEW: Quantity of this product in this specific order
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  totalItemPrice: { // RENAMED from 'price': Total price for this item's quantity in the order
     type: Number,
     required: true,
     min: 0,
