@@ -12,6 +12,7 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
+import MapModal from "../MapModal/MapModal"; // Import the new MapModal component
 
 const AdminOrders = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
+  const [showMapModal, setShowMapModal] = useState(false); // State for modal visibility
+  const [currentMapUrl, setCurrentMapUrl] = useState(""); // State for map URL
 
   // --- ADMIN EMAIL ---
   const ADMIN_EMAIL = "c233210@ugrad.iiuc.ac.bd";
@@ -70,7 +73,7 @@ const AdminOrders = () => {
           phone: data.phone,
           date,
           status: data.status || "Pending",
-          address: data.address,
+          address: data.address, // This will now be the map link
           total: Number(data.price) || 0,
           items,
         };
@@ -107,6 +110,16 @@ const AdminOrders = () => {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const handleOpenMap = (mapLink) => {
+    setCurrentMapUrl(mapLink);
+    setShowMapModal(true);
+  };
+
+  const handleCloseMap = () => {
+    setShowMapModal(false);
+    setCurrentMapUrl("");
   };
 
   const getStatusColor = (status) => {
@@ -227,9 +240,23 @@ const AdminOrders = () => {
                   </div>
                 </div>
 
-                <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border border-border">
-                  📍 {order.address || "No address provided"}
-                </div>
+                {/* Clickable Address/Map Link */}
+                {order.address && order.address.startsWith("http") ? (
+                  <button
+                    onClick={() => handleOpenMap(order.address)}
+                    className="text-xs text-primary hover:underline bg-background/50 p-2 rounded border border-border flex items-center gap-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    View Map Location
+                  </button>
+                ) : (
+                  <div className="text-xs text-muted-foreground bg-background/50 p-2 rounded border border-border">
+                    📍 {order.address || "No address provided"}
+                  </div>
+                )}
               </div>
 
               {/* Footer */}
@@ -246,6 +273,8 @@ const AdminOrders = () => {
           ))}
         </div>
       </div>
+      {/* Map Modal */}
+      <MapModal mapUrl={currentMapUrl} onClose={handleCloseMap} />
        <Footer />
     </>
   );

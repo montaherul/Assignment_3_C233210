@@ -19,7 +19,7 @@ const Order = () => {
 
   // Form States
   const [customerName, setCustomerName] = useState("");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(""); // This will now store the map link
   const [phone, setPhone] = useState("");
 
   // 3. Check Auth & Auto-fill Name
@@ -50,7 +50,7 @@ const Order = () => {
         customerName: customerName,
         email: user.email,
         uid: user.uid,
-        address: address,
+        address: address, // Storing the map link here
         phone: phone,
         status: "Pending",
         createdAt: serverTimestamp(),
@@ -167,12 +167,12 @@ const Order = () => {
                         htmlFor="address"
                         className="block text-sm font-medium text-slate-700 mb-1"
                       >
-                        Address
+                        Address (Google Maps Link)
                       </label>
                       <input
-                        type="text"
+                        type="url" // Changed to type="url"
                         id="address"
-                        placeholder="123 Main St"
+                        placeholder="e.g., https://maps.app.goo.gl/your-location"
                         required
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
