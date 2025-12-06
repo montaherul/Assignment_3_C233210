@@ -3,6 +3,7 @@ import Navigation from "../Navigation/Navigation";
 import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import Footer from "../../Footer/Footer";
 import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
+import Product from "../Product/Product"; // Import the Product component
 
 const Details = () => {
   const product = useLoaderData();
@@ -14,6 +15,10 @@ const Details = () => {
 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistActionLoading, setWishlistActionLoading] = useState(false);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [similarProductsLoading, setSimilarProductsLoading] = useState(true);
+  const [similarProductsError, setSimilarProductsError] = useState(null);
+
 
   const API_BASE_URL = "http://localhost:5000/api";
 
@@ -48,6 +53,33 @@ const Details = () => {
       checkWishlistStatus();
     }
   }, [user, firebaseUser, _id, authLoading]);
+
+  // Fetch similar products when the product category changes
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      if (category) {
+        setSimilarProductsLoading(true);
+        setSimilarProductsError(null);
+        try {
+          const response = await fetch(`${API_BASE_URL}/products?category=${encodeURIComponent(category)}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          // Filter out the current product from the similar products list
+          const filteredProducts = data.filter(p => p._id !== _id);
+          setSimilarProducts(filteredProducts.slice(0, 4)); // Show up to 4 similar products
+        } catch (err) {
+          console.error("Error fetching similar products:", err);
+          setSimilarProductsError("Failed to load similar products.");
+        } finally {
+          setSimilarProductsLoading(false);
+        }
+      }
+    };
+
+    fetchSimilarProducts();
+  }, [category, _id]); // Re-run when category or current product ID changes
 
   // Function to add/remove product from wishlist
   const toggleWishlist = async () => {
@@ -268,6 +300,32 @@ const Details = () => {
             </div>
           </div>
         </div>
+
+        {/* Similar Products Section */}
+        <section className="max-w-7xl mx-auto py-16">
+          <h2 className="text-3xl font-bold text-center mb-10 text-foreground">Similar Products</h2>
+          {similarProductsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-card rounded-xl shadow-sm border border-border p-6 animate-pulse">
+                  <div className="h-48 bg-muted rounded mb-4"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : similarProductsError ? (
+            <p className="text-center text-destructive">Error loading similar products: {similarProductsError}</p>
+          ) : similarProducts.length === 0 ? (
+            <p className="text-center text-muted-foreground">No similar products found in this category.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {similarProducts.map((similarProduct) => (
+                <Product key={similarProduct._id} pdt={similarProduct} />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
       <Footer />
     </div>

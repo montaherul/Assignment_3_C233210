@@ -5,11 +5,18 @@ const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 
 // @route   GET /api/products
-// @desc    Get all products
+// @desc    Get all products, with optional category filter
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find();
+    const { category } = req.query; // Get category from query parameters
+    let query = {};
+
+    if (category) {
+      query.category = category; // Add category filter to query
+    }
+
+    const products = await Product.find(query);
     console.log(`Fetched ${products.length} products from DB.`); // Added console log
     res.json(products);
   } catch (err) {
