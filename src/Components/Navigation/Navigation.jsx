@@ -70,10 +70,10 @@ const Navigation = () => {
           <div className="flex items-center">
             <NavLink to="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">M</span>
+                <span className="text-primary-foreground font-bold text-xl">T</span>
               </div>
               <span className="text-xl font-bold text-foreground tracking-tight">
-                myproject
+                 Tumar Dukan
               </span>
             </NavLink>
           </div>
@@ -198,6 +198,29 @@ const Navigation = () => {
               >
                 <ShoppingCart className="w-5 h-5" />
                 Cart {cartTotalItems > 0 && <span className="ml-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{cartTotalItems}</span>}
+              </NavLink>
+            )}
+
+            {/* Mobile Profile Link (NEW) */}
+            {user && (
+              <NavLink
+                to="/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-secondary flex items-center gap-2"
+              >
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    className="w-8 h-8 rounded-full border border-border object-cover"
+                    referrerPolicy="no-referrer"
+                    alt="User Avatar"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-secondary text-primary-foreground rounded-full flex items-center justify-center font-bold">
+                    {user.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
+                My Profile
               </NavLink>
             )}
 

@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* --- Brand --- */}
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-3">ShopMaster</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-3">Tumar Dukan</h2>
           <p className="text-muted-foreground text-sm leading-6">
             Your trusted marketplace for the latest fashion, gadgets, and home
             essentials. Quality products, fast delivery, best prices.
