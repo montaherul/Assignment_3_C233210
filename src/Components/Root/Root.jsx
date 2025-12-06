@@ -73,8 +73,14 @@ const Root = () => {
             <p className="text-center text-destructive">Error loading products: {error}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts.map((product) => (
-                <Product key={product._id} pdt={product} />
+              {featuredProducts.map((product, index) => (
+                <div 
+                  key={product._id} 
+                  className="opacity-0 animate-slide-up-fade-in" 
+                  style={{ animationDelay: `${0.1 * index}s` }}
+                >
+                  <Product pdt={product} />
+                </div>
               ))}
             </div>
           )}
