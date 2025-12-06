@@ -202,8 +202,8 @@ const AdminOrders = () => {
                     <p className="text-xs font-bold text-muted-foreground uppercase">
                       Order ID
                     </p>
-                    <p className="text-sm font-mono font-semibold text-foreground">
-                      {order.orderId}
+                    <p className="text-sm font-mono font-semibold text-foreground" title={order.docId}>
+                      #{order.docId.substring(0, 8)}...
                     </p>
                   </div>
 
@@ -231,6 +231,23 @@ const AdminOrders = () => {
                         <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                       </div>
                     )}
+                  </div>
+                </div>
+
+                {/* Product Item Details */}
+                <div className="p-5 border-b border-border flex items-center gap-4 bg-background/50">
+                  <img
+                    src={order.productImage}
+                    alt={order.productTitle}
+                    className="w-16 h-16 object-contain rounded-md border border-border p-1"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-foreground text-base">
+                      {order.productTitle}
+                    </h4>
+                    <p className="text-lg font-bold text-primary">
+                      ${Number(order.price).toFixed(2)}
+                    </p>
                   </div>
                 </div>
 
@@ -305,9 +322,10 @@ const AdminOrders = () => {
                     {new Date(order.date).toLocaleDateString()}
                   </div>
 
-                  <div className="text-lg font-bold text-primary">
+                  {/* Price is now displayed with product details, so removing from footer */}
+                  {/* <div className="text-lg font-bold text-primary">
                     ${order.price.toFixed(2)}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             ))
