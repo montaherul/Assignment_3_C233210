@@ -7,7 +7,6 @@ import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 // import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore"; // Firebase imports removed
 
 const Dashboard = () => {
-  const ADMIN_EMAIL = "c233210@ugrad.iiuc.ac.bd"; // This will need to be updated to check user.role === 'admin'
   const navigate = useNavigate();
   const { user, loading, logout } = useAuth(); // Get user, loading, and logout from AuthContext
 
@@ -124,7 +123,7 @@ const Dashboard = () => {
               >
                 Logout
               </button>
-              {user?.email === ADMIN_EMAIL && ( // This check needs to be updated to user.role === 'admin'
+              {user?.role === 'admin' && ( // Updated to check user.role
                 <button
                   onClick={() => navigate("/admin/orders")}
                   className="px-5 py-2 bg-primary text-primary-foreground rounded-lg shadow-sm hover:bg-sky-700 transition-colors text-sm font-medium"

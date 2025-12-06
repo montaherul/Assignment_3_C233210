@@ -34,18 +34,18 @@ const router = createBrowserRouter([
   },
   {
     path: "/products",
-    loader: () => fetch("https://fakestoreapi.com/products"),
+    loader: () => fetch("http://localhost:5000/api/products"), // Use new backend API
     Component: Products,
   },
   {
     path: "/productfromapi",
-    loader: () => fetch("https://fakestoreapi.com/products/"),
+    loader: () => fetch("https://fakestoreapi.com/products/"), // Keep this for now if it's a separate feature
     Component: Productfromapi,
   },
   {
     path: "/products/:id",
     loader: ({ params }) => {
-      return fetch(`https://fakestoreapi.com/products/${params.id}`);
+      return fetch(`http://localhost:5000/api/products/${params.id}`); // Use new backend API
     },
     Component: Details,
   },
@@ -53,7 +53,7 @@ const router = createBrowserRouter([
   {
     path: "/products/order/:id",
     loader: ({ params }) => {
-      return fetch(`https://fakestoreapi.com/products/${params.id}`);
+      return fetch(`http://localhost:5000/api/products/${params.id}`); // Use new backend API
     },
     element: <ProtectedRoute><Order /></ProtectedRoute>, // Protect the Order route
   },

@@ -8,7 +8,7 @@ const Details = () => {
   const navigate = useNavigate();
 
   // Destructure with fallbacks to prevent crashes
-  const { id, title, price, category, description, image } = product || {};
+  const { _id, title, price, category, description, image } = product || {};
 
   // Helper to render static stars for the UI design
   const renderStars = () => (
@@ -100,7 +100,7 @@ const Details = () => {
 
             {/* Action Buttons */}
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <Link to={`/products/order/${id}`} className="flex-1">
+              <Link to={`/products/order/${_id}`} className="flex-1">
                 <button className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-primary-foreground bg-primary hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5">
                   <svg
                     className="w-5 h-5 mr-2"

@@ -1,44 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/firebase.int";
-import { onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useAuth } from "../AuthContext/AuthContext"; // Import useAuth hook
 import Navigation from "../Navigation/Navigation";
 import Footer from "../../Footer/Footer";
 
 const Order = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get user from AuthContext
 
   const product = useLoaderData();
-  const { id, title, price, image, description } = product;
+  const { _id, title, price, image, description } = product; // Use _id from MongoDB
 
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Form States
   const [customerName, setCustomerName] = useState("");
-  const [physicalAddress, setPhysicalAddress] = useState(""); // New state for physical address
-  const [mapEmbedLink, setMapEmbedLink] = useState(""); // Renamed for clarity, stores the embed URL
+  const [physicalAddress, setPhysicalAddress] = useState("");
+  const [mapEmbedLink, setMapEmbedLink] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery"); // Default payment method
+  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
   const [transactionId, setTransactionId] = useState("");
   const [senderNumber, setSenderNumber] = useState("");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setCustomerName(currentUser.displayName || "");
-      } else {
-        navigate("/login");
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+    if (user) {
+      setCustomerName(user.name || "");
+      // You might want to pre-fill phone/address if available in user profile
+      // setPhone(user.phoneNumber || "");
+      // setPhysicalAddress(user.addresses?.[0]?.street || "");
+    } else {
+      // This case should ideally be caught by ProtectedRoute, but good for fallback
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!user) {
+      alert("You must be logged in to place an order.");
+      navigate("/login");
+      setLoading(false);
+      return;
+    }
 
     let initialStatus = "Pending";
     if (paymentMethod === "bKash" || paymentMethod === "Nagad") {
@@ -47,28 +52,40 @@ const Order = () => {
 
     try {
       const orderData = {
-        orderId: `ORD-${Math.floor(Math.random() * 100000)}`,
-        productId: id,
+        productId: _id, // Use MongoDB _id
         productTitle: title,
         productImage: image,
         price: price,
         customerName: customerName,
         email: user.email,
-        uid: user.uid,
-        physicalAddress: physicalAddress, // Save physical address
-        mapEmbedLink: mapEmbedLink, // Save map embed link
+        userId: user.id, // Use user.id from JWT payload
+        physicalAddress: physicalAddress,
+        mapEmbedLink: mapEmbedLink,
         phone: phone,
         paymentMethod: paymentMethod,
         transactionId: paymentMethod !== "Cash on Delivery" ? transactionId : null,
         senderNumber: paymentMethod !== "Cash on Delivery" ? senderNumber : null,
-        status: initialStatus, // Initial status based on payment method
-        createdAt: serverTimestamp(),
+        status: initialStatus,
       };
 
-      await addDoc(collection(db, "orders"), orderData);
+      const token = localStorage.getItem('token');
+      const response = await fetch("http://localhost:5000/api/orders", { // New orders API endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token, // Send JWT token for authentication
+        },
+        body: JSON.stringify(orderData),
+      });
 
-      alert("Order Placed Successfully! Please check your dashboard for updates.");
-      navigate("/dashboard");
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Order Placed Successfully! Please check your dashboard for updates.");
+        navigate("/dashboard");
+      } else {
+        alert(`Failed to place order: ${data.message || 'Server error'}`);
+      }
     } catch (error) {
       console.error("Error placing order:", error);
       alert("Failed to place order. Please try again.");

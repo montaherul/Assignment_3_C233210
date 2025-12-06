@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 // import { GoogleAuthProvider, GithubAuthProvider } from "firebase/auth"; // Removed
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// import { getFirestore } from "firebase/firestore"; // Removed getFirestore
 
 
 const firebaseConfig = {
@@ -16,5 +16,5 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app); // Keep getAuth for potential future use if needed, but it's not used for core auth anymore
-export const db = getFirestore(app); // Firestore is still used for orders for now, but will be replaced
+// export const db = getFirestore(app); // Firestore is no longer used for orders
 // export const githubProvider =  new GithubAuthProvider(); // Removed

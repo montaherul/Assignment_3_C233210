@@ -27,7 +27,7 @@ const Products = () => {
           {/* Responsive Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-10">
             {records.map((pd) => (
-              <Product key={pd.id} pdt={pd} />
+              <Product key={pd._id} pdt={pd} />
             ))}
           </div>
         </div>

@@ -35,6 +35,8 @@ app.get('/', (req, res) => {
 
 // Auth Routes
 app.use('/api/auth', require('./routes/authRoutes'));
+// Product Routes
+app.use('/api/products', require('./routes/productRoutes'));
 
 // --- Start Server ---
 app.listen(PORT, () => {

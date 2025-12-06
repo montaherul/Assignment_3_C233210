@@ -13,12 +13,14 @@ const Root = () => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://fakestoreapi.com/products?limit=4"); // Fetch a few products
+        // Fetch a few products from your backend API
+        const response = await fetch("http://localhost:5000/api/products"); 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setFeaturedProducts(data);
+        // Take the first 4 products as featured
+        setFeaturedProducts(data.slice(0, 4)); 
       } catch (err) {
         setError(err.message);
       } finally {
@@ -72,7 +74,7 @@ const Root = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredProducts.map((product) => (
-                <Product key={product.id} pdt={product} />
+                <Product key={product._id} pdt={product} />
               ))}
             </div>
           )}
