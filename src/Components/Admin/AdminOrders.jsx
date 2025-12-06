@@ -26,7 +26,7 @@ const AdminOrders = () => {
   // --- ADMIN EMAIL ---
   const ADMIN_EMAIL = "c233210@ugrad.iiuc.ac.bd";
 
-  const STATUS_OPTIONS = ["Pending", "Processing", "Delivered", "Cancelled"];
+  const STATUS_OPTIONS = ["Payment Pending", "Pending", "Processing", "Delivered", "Cancelled"];
 
   // Check admin login
   useEffect(() => {
@@ -73,9 +73,12 @@ const AdminOrders = () => {
           phone: data.phone,
           date,
           status: data.status || "Pending",
-          address: data.address, // This will now be the map link
+          address: data.address,
           total: Number(data.price) || 0,
           items,
+          paymentMethod: data.paymentMethod || "N/A",
+          transactionId: data.transactionId || "N/A",
+          senderNumber: data.senderNumber || "N/A",
         };
       });
 
@@ -113,15 +116,12 @@ const AdminOrders = () => {
   };
 
   const handleAddressClick = (address) => {
-    // Check if it's a Google Maps embed link
     if (address && address.startsWith("https://www.google.com/maps/embed?")) {
       setCurrentMapUrl(address);
       setShowMapModal(true);
     } else if (address && address.startsWith("http")) {
-      // If it's any other URL, open in a new tab
       window.open(address, "_blank");
     } else if (address) {
-      // If it's just a plain address, try to search on Google Maps
       window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, "_blank");
     }
   };
@@ -139,6 +139,8 @@ const AdminOrders = () => {
         return "bg-blue-100 text-blue-700 border-blue-200";
       case "Cancelled":
         return "bg-red-100 text-red-700 border-red-200";
+      case "Payment Pending":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200"; // New color for Payment Pending
       case "Pending":
         return "bg-amber-100 text-amber-700 border-amber-200";
       default:
@@ -234,7 +236,7 @@ const AdminOrders = () => {
                 </div>
               </div>
 
-              {/* Customer */}
+              {/* Customer & Payment Details */}
               <div className="p-5 space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
@@ -247,6 +249,26 @@ const AdminOrders = () => {
                     <p className="text-xs text-muted-foreground">{order.phone || "No phone provided"}</p>
                     <p className="text-xs text-muted-foreground">{order.email}</p>
                   </div>
+                </div>
+
+                {/* Payment Info */}
+                <div className="border-t border-border pt-3 mt-3">
+                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">
+                    Payment Details
+                  </p>
+                  <p className="text-sm text-foreground">
+                    Method: <span className="font-semibold">{order.paymentMethod}</span>
+                  </p>
+                  {(order.paymentMethod === "bKash" || order.paymentMethod === "Nagad") && (
+                    <>
+                      <p className="text-sm text-foreground">
+                        Txn ID: <span className="font-semibold">{order.transactionId}</span>
+                      </p>
+                      <p className="text-sm text-foreground">
+                        Sender: <span className="font-semibold">{order.senderNumber}</span>
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Clickable Address/Map Link */}

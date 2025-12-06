@@ -9,20 +9,20 @@ import Footer from "../../Footer/Footer";
 const Order = () => {
   const navigate = useNavigate();
 
-  // 1. Get Product Data (Corrected 'id')
   const product = useLoaderData();
   const { id, title, price, image, description } = product;
 
-  // 2. State for User & Form
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Form States
   const [customerName, setCustomerName] = useState("");
-  const [address, setAddress] = useState(""); // This will now store the map link
+  const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery"); // Default payment method
+  const [transactionId, setTransactionId] = useState("");
+  const [senderNumber, setSenderNumber] = useState("");
 
-  // 3. Check Auth & Auto-fill Name
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -35,31 +35,37 @@ const Order = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  // 4. Handle Order Submission
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    let initialStatus = "Pending";
+    if (paymentMethod === "bKash" || paymentMethod === "Nagad") {
+      initialStatus = "Payment Pending";
+    }
+
     try {
       const orderData = {
         orderId: `ORD-${Math.floor(Math.random() * 100000)}`,
-        productId: id, // <--- FIXED: Uses 'id' now
+        productId: id,
         productTitle: title,
         productImage: image,
         price: price,
         customerName: customerName,
         email: user.email,
         uid: user.uid,
-        address: address, // Storing the map link here
+        address: address,
         phone: phone,
-        status: "Pending",
+        paymentMethod: paymentMethod,
+        transactionId: paymentMethod !== "Cash on Delivery" ? transactionId : null,
+        senderNumber: paymentMethod !== "Cash on Delivery" ? senderNumber : null,
+        status: initialStatus, // Initial status based on payment method
         createdAt: serverTimestamp(),
       };
 
-      // Save to Firebase "orders" collection
       await addDoc(collection(db, "orders"), orderData);
 
-      alert("Order Placed Successfully!");
+      alert("Order Placed Successfully! Please check your dashboard for updates.");
       navigate("/dashboard");
     } catch (error) {
       console.error("Error placing order:", error);
@@ -114,7 +120,7 @@ const Order = () => {
               </div>
             </div>
 
-            {/* RIGHT: Shipping Form */}
+            {/* RIGHT: Shipping & Payment Form */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-10 border border-slate-100">
                 <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center">
@@ -137,7 +143,7 @@ const Order = () => {
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  Shipping Details
+                  Shipping & Payment Details
                 </h2>
 
                 {/* FORM START */}
@@ -199,6 +205,96 @@ const Order = () => {
                         className="block w-full rounded-lg border-slate-300 border px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition shadow-sm outline-none"
                       />
                     </div>
+                  </div>
+
+                  {/* Payment Method Selection */}
+                  <div className="pt-4 border-t border-slate-100">
+                    <h3 className="text-sm font-medium text-slate-700 mb-3">
+                      Select Payment Method
+                    </h3>
+                    <div className="flex flex-wrap gap-4">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="Cash on Delivery"
+                          checked={paymentMethod === "Cash on Delivery"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          className="form-radio text-indigo-600"
+                        />
+                        <span className="text-sm text-slate-700">Cash on Delivery</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="bKash"
+                          checked={paymentMethod === "bKash"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          className="form-radio text-indigo-600"
+                        />
+                        <span className="text-sm text-slate-700">bKash</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="Nagad"
+                          checked={paymentMethod === "Nagad"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          className="form-radio text-indigo-600"
+                        />
+                        <span className="text-sm text-slate-700">Nagad</span>
+                      </label>
+                    </div>
+
+                    {(paymentMethod === "bKash" || paymentMethod === "Nagad") && (
+                      <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200 text-sm text-indigo-800">
+                        <p className="font-semibold mb-2">
+                          Please send ${price} to our {paymentMethod} number:{" "}
+                          <span className="font-bold">01XXXXXXXXX</span>
+                        </p>
+                        <p className="mb-3">
+                          After successful payment, enter the transaction ID and your sender number below.
+                        </p>
+                        <div className="space-y-3">
+                          <div>
+                            <label
+                              htmlFor="transactionId"
+                              className="block text-xs font-medium text-indigo-700 mb-1"
+                            >
+                              Transaction ID
+                            </label>
+                            <input
+                              type="text"
+                              id="transactionId"
+                              required
+                              value={transactionId}
+                              onChange={(e) => setTransactionId(e.target.value)}
+                              className="block w-full rounded-lg border-indigo-300 border px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 text-sm transition shadow-sm outline-none"
+                              placeholder="e.g., 8A7B6C5D4E"
+                            />
+                          </div>
+                          <div>
+                            <label
+                              htmlFor="senderNumber"
+                              className="block text-xs font-medium text-indigo-700 mb-1"
+                            >
+                              Your {paymentMethod} Sender Number
+                            </label>
+                            <input
+                              type="text"
+                              id="senderNumber"
+                              required
+                              value={senderNumber}
+                              onChange={(e) => setSenderNumber(e.target.value)}
+                              className="block w-full rounded-lg border-indigo-300 border px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 text-sm transition shadow-sm outline-none"
+                              placeholder="e.g., 01XXXXXXXXX"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Submit Button */}
